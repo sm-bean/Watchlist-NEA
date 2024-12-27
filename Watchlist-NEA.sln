@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Watchlist-NEA", "Watchlist-NEA.pyproj", "{ADF3355D-66F4-4C8F-A675-FCDCE3BF9992}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADF3355D-66F4-4C8F-A675-FCDCE3BF9992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADF3355D-66F4-4C8F-A675-FCDCE3BF9992}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {766B99AF-C386-4404-AED2-CD902AEB3F37}
+	EndGlobalSection
+EndGlobal
