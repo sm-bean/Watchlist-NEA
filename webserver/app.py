@@ -56,6 +56,8 @@ def check_username():
 @app.route("/createaccount", methods=["POST"])
 def create_account_server():
     data = request.json
+    token = login.create_account(data)
+    return jsonify({"token": token})
 
 
 if __name__ == "__main__":

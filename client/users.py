@@ -43,7 +43,7 @@ class ClientUser(User):
         username_payload = {"username": username}
         response = requests.post(self.url, json=username_payload)
 
-        return response.json().get("available")
+        return response.json()["available"]
 
     def add_friend(self):
         pass

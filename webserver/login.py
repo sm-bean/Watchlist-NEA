@@ -50,6 +50,7 @@ def create_jwt_token(username):
         jwt_secret,
         algorithm,
     )
+    return token
 
 
 def check_username_availability(username):
@@ -95,6 +96,8 @@ def create_account(data):
     create_account_query = (
         "INSERT INTO users (Username, DateJoined, HashedPassword) VALUES (%s, %s, %s)"
     )
-    adr = (username, datetime.date.today(), hashed_password)
-    mycursor.execute(create_account_query, adr)
+    val = (username, datetime.date.today(), hashed_password)
+    mycursor.execute(create_account_query, val)
     mydb.commit()
+
+    return create_jwt_token(username)

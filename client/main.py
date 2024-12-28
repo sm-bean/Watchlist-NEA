@@ -1,7 +1,7 @@
 import requests
 
-url = "http://127.0.0.1:5000/checkusername"
-username_payload = {"username": "username"}
-response = requests.post(url, json=username_payload)
+url = "http://127.0.0.1:5000/login"
+login_info = {"username": "username", "password": "password"}
+response = requests.post(url, json=login_info)
 
-print(response.json().get("available"))
+print(response.json()["token"])
