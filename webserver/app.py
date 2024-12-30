@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import login
+import friends
 from functools import wraps
 import jwt
 import dotenv
@@ -58,6 +59,24 @@ def create_account_server():
     data = request.json
     token = login.create_account(data)
     return jsonify({"token": token})
+
+
+@app.route("/addfriend", methods=["POST"])
+@check_jwt
+def add_friend():
+    data = request.json
+    if friends.request_friend(data):
+        return jsonify({"message": "friend added"})
+    return jsonify({"message": "already friends/requested"}), 401
+
+
+@app.route("/acceptfriend", methods=["POST"])
+@check_jwt
+def accept_friend():
+    result = friends.accept_friendship(request.json)
+    if result == "friend added":
+        return jsonify({"message": result})
+    return jsonify({"message": result}), 401
 
 
 if __name__ == "__main__":
