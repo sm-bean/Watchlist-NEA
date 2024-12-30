@@ -26,14 +26,14 @@ def login(data):
     myresult = mycursor.fetchone()
 
     if myresult is None:
-        return [False, ""]
+        return ""
 
     bytes_password = password.encode("utf-8")
     result = bcrypt.checkpw(bytes_password, myresult[0])
 
     if result:
-        return [True, create_jwt_token(username)]
-    return [False, ""]
+        return create_jwt_token(username)
+    return ""
 
 
 def create_jwt_token(username):

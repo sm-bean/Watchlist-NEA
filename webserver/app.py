@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import login
 import friends
+import films
 from functools import wraps
 import jwt
 import dotenv
@@ -40,8 +41,8 @@ def check_jwt(func):
 def login_server():
     data = request.json
     result = login.login(data)
-    if result[0]:
-        return jsonify({"token": result[1]})
+    if result != "":
+        return jsonify({"token": result})
     return jsonify({"message": "Incorrect details"}), 401
 
 
@@ -67,7 +68,7 @@ def add_friend():
     data = request.json
     if friends.request_friend(data):
         return jsonify({"message": "friend added"})
-    return jsonify({"message": "already friends/requested"}), 401
+    return jsonify({"message": "already friends/requested"}), 400
 
 
 @app.route("/acceptfriend", methods=["POST"])
@@ -76,7 +77,14 @@ def accept_friend():
     result = friends.accept_friendship(request.json)
     if result == "friend added":
         return jsonify({"message": result})
-    return jsonify({"message": result}), 401
+    return jsonify({"message": result}), 400
+
+
+@app.route("/getfilms", methods=["POST"])
+@check_jwt
+def get_films():
+    result = films.get_films_watched(request.json)
+    return jsonify({"films": result})
 
 
 if __name__ == "__main__":
