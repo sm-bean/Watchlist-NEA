@@ -3,6 +3,8 @@ from math import sqrt
 
 def correlation_coefficient(x, y, common_films):
 
+    common_films = x.get_common_films(y)
+
     co_total = 0
     x_sigma = 0
     y_sigma = 0
@@ -33,5 +35,4 @@ def predict_value(user, film, friends):
 
 
 def get_common_films(user, friend):
-    user
-
+    pass

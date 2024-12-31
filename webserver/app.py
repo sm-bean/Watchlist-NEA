@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import login
 import friends
 import films
+import inspect
 from functools import wraps
 import jwt
 import dotenv
@@ -32,7 +33,10 @@ def check_jwt(func):
         except jwt.InvalidSignatureError:
             return jsonify({"message": "token invalid"}), 401
 
-        return func(username, *args, **kwargs)
+        if "username" in inspect.getfullargspec(func).args:
+            kwargs["username"] = username
+
+        return func(*args, **kwargs)
 
     return decorated_func
 
@@ -64,17 +68,16 @@ def create_account_server():
 
 @app.route("/addfriend", methods=["POST"])
 @check_jwt
-def add_friend():
-    data = request.json
-    if friends.request_friend(data):
+def add_friend(username):
+    if friends.request_friend(username, request.json):
         return jsonify({"message": "friend added"})
     return jsonify({"message": "already friends/requested"}), 400
 
 
 @app.route("/acceptfriend", methods=["POST"])
 @check_jwt
-def accept_friend():
-    result = friends.accept_friendship(request.json)
+def accept_friend(username):
+    result = friends.accept_friendship(username, request.json["friend_username"])
     if result == "friend added":
         return jsonify({"message": result})
     return jsonify({"message": result}), 400
@@ -82,9 +85,17 @@ def accept_friend():
 
 @app.route("/getfilms", methods=["POST"])
 @check_jwt
-def get_films():
-    result = films.get_films_watched(request.json)
+def get_films(username):
+    result = films.get_films_watched(username)
     return jsonify({"films": result})
+
+
+@app.route("/logfilm", methods=["POST"])
+@check_jwt
+def log_film(username):
+    if films.log_film_watched(username, request.json):
+        return jsonify({"message": "film logged"})
+    return jsonify({"message": "already logged"}), 400
 
 
 if __name__ == "__main__":

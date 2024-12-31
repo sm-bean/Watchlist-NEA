@@ -3,7 +3,7 @@ import dotenv
 import os
 
 
-def request_friend(data):
+def request_friend(username1, data):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
     mydb = mysql.connector.connect(
@@ -13,14 +13,13 @@ def request_friend(data):
         database="watchlists",
     )
 
-    username1 = data["username1"]
-    username2 = data["username2"]
+    username2 = data["friend_username"]
     cor_coeff = data["correlation coefficient"]
     friendship_status = "Request"
 
     mycursor = mydb.cursor()
     friendship_query = (
-        "SELECT Username1 FROM friendships WHERE Username1 = %s AND Username2 = %s"
+        "SELECT Status FROM friendships WHERE Username1 = %s AND Username2 = %s"
     )
     val = (username1, username2)
     mycursor.execute(friendship_query, val)
@@ -35,7 +34,7 @@ def request_friend(data):
     return False
 
 
-def accept_friendship(data):
+def accept_friendship(username1, username2):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
     mydb = mysql.connector.connect(
@@ -44,9 +43,6 @@ def accept_friendship(data):
         password=db_password,
         database="watchlists",
     )
-
-    username1 = data["username1"]
-    username2 = data["username2"]
 
     mycursor = mydb.cursor()
     friendship_query = (
