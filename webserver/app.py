@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import login
 import friends
 import films
+import watchlists
 import inspect
 from functools import wraps
 import jwt
@@ -83,10 +84,18 @@ def accept_friend(username):
     return jsonify({"message": result}), 400
 
 
-@app.route("/getfilms", methods=["POST"])
+@app.route("/getfilms", methods=["GET"])
 @check_jwt
 def get_films(username):
     result = films.get_films_watched(username)
+    return jsonify({"films": result})
+
+
+@app.route("/getwatchlistfilms", methods=["POST"])
+@check_jwt
+def get_watchlist_films():
+    data = request.json
+    result = watchlists.get_films_in_watchlist(data["watchlist_id"])
     return jsonify({"films": result})
 
 
@@ -96,6 +105,28 @@ def log_film(username):
     if films.log_film_watched(username, request.json):
         return jsonify({"message": "film logged"})
     return jsonify({"message": "already logged"}), 400
+
+
+@app.route("/getwatchlistsin", methods=["GET"])
+@check_jwt
+def get_watchlists_in(username):
+    result = watchlists.get_watchlists_user_in(username)
+    return jsonify({"watchlists": result})
+
+
+@app.route("/getfriends", methods=["GET"])
+@check_jwt
+def get_friends(username):
+    result = friends.get_friendships(username)
+    return jsonify({"friendships": result})
+
+
+@app.route("/getwatchlistmembers", methods=["POST"])
+@check_jwt
+def get_watchlist_members():
+    data = request.json
+    result = watchlists.get_members(data["watchlist_id"])
+    return jsonify({"members": result})
 
 
 if __name__ == "__main__":

@@ -32,7 +32,3 @@ def predict_value(user, film, friends):
         raters_correlation += abs(user.get_correlation_coefficient(friend))
 
     return user.avg_rating + raters_diff / raters_correlation
-
-
-def get_common_films(user, friend):
-    pass

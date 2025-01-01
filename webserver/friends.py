@@ -21,7 +21,10 @@ def request_friend(username1, data):
     friendship_query = (
         "SELECT Status FROM friendships WHERE Username1 = %s AND Username2 = %s"
     )
+
     val = (username1, username2)
+    mycursor.execute(friendship_query, val)
+    val = (username2, username1)
     mycursor.execute(friendship_query, val)
     myresult = mycursor.fetchone()
 
@@ -49,7 +52,7 @@ def accept_friendship(username1, username2):
         "SELECT Status FROM friendships WHERE Username1 = %s AND Username2 = %s"
     )
 
-    val = (username1, username2)
+    val = (username2, username1)
     mycursor.execute(friendship_query, val)
     myresult = mycursor.fetchone()
 
@@ -63,3 +66,26 @@ def accept_friendship(username1, username2):
     mydb.commit()
 
     return "friend added"
+
+
+def get_friendships(username):
+    dotenv.load_dotenv()
+    db_password = os.getenv("db_password")
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="serverconnection",
+        password=db_password,
+        database="watchlists",
+    )
+
+    mycursor = mydb.cursor()
+    friendship_query = "SELECT Username2, Status, CorrelationCoefficient FROM friendships WHERE Username1 = %s"
+    val = (username,)
+    mycursor.execute(friendship_query, val)
+    friendship_query(
+        "SELECT Username1, Status, CorrelationCoefficient FROM friendships WHERE Username2 = %s"
+    )
+    mycursor.execute(friendship_query, val)
+    myresult = mycursor.fetchall()
+
+    return myresult
