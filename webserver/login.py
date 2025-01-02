@@ -25,6 +25,9 @@ def login(data):
     mycursor.execute(password_query, val)
     myresult = mycursor.fetchone()
 
+    mycursor.close()
+    mydb.close()
+
     if myresult is None:
         return ""
 
@@ -50,6 +53,7 @@ def create_jwt_token(username):
         jwt_secret,
         algorithm,
     )
+
     return token
 
 
@@ -68,6 +72,9 @@ def check_username_availability(username):
     val = (username,)
     mycursor.execute(username_query, val)
     myresult = mycursor.fetchone()
+
+    mycursor.close()
+    mydb.close()
 
     if myresult is None:
         return True
@@ -99,5 +106,8 @@ def create_account(data):
     val = (username, datetime.date.today(), hashed_password)
     mycursor.execute(create_account_query, val)
     mydb.commit()
+
+    mycursor.close()
+    mydb.close()
 
     return create_jwt_token(username)

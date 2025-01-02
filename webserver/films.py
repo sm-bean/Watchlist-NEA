@@ -20,6 +20,9 @@ def get_films_watched(username):
     mycursor.execute(film_query, val)
     myresult = mycursor.fetchall()
 
+    mycursor.close()
+    mydb.close()
+
     return myresult
 
 
@@ -49,5 +52,13 @@ def log_film_watched(username, data):
         val = (film_id, username, rating, datetime.date.today())
         mycursor.execute(film_query, val)
         mydb.commit()
+
+        mycursor.close()
+        mydb.close()
+
         return True
+
+    mycursor.close()
+    mydb.close()
+
     return False

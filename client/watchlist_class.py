@@ -24,7 +24,7 @@ class Watchlist:
         if response.status_code == 401:
             token_handling.expire_token()
 
-        return response["films"]
+        return response.json()["films"]
 
     def set_films(self):
         db_films = self.get_films()
@@ -42,11 +42,41 @@ class Watchlist:
             )
         self.films = films
 
-    def add_film(self):
-        pass
+    def add_film(self, user, film):
+        if user.get_watchlist_invites(self):
+            return "user only invited to watchlist"
 
-    def remove_film(self):
-        pass
+        id_info = {"watchlist_id": self.watchlist_id, "film_id": film.film_id}
+
+        response = requests.post(
+            self.url + "addwatchlistfilm", json=id_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expire_token()
+
+        self.films.append(film)
+
+        return response.json()["message"]
+
+    def remove_film(self, user, film):
+        if user.get_watchlist_invites(self):
+            return "user only invited to watchlist"
+
+        id_info = {"watchlist_id": self.watchlist_id, "film_id": film.film_id}
+
+        response = requests.post(
+            self.url + "removewatchlistfilm", json=id_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expire_token()
+
+        for self_film in self.films:
+            if self_film.film_id == film.film_id:
+                self.films.remove(self_film)
+
+        return response.json()["message"]
 
     def get_members(self):
         id_info = {"watchlist_id": self.watchlist_id}
@@ -58,10 +88,7 @@ class Watchlist:
         if response.status_code == 401:
             token_handling.expire_token()
 
-        return response["members"]
+        return response.json()["members"]
 
     def get_random_film(self):
         return random.choice(self.films)
-
-    def invite_user(self, user):
-        pass

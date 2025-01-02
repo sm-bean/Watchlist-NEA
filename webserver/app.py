@@ -129,5 +129,60 @@ def get_watchlist_members():
     return jsonify({"members": result})
 
 
+@app.route("/addwatchlistfilm", methods=["POST"])
+@check_jwt
+def add_watchlist_film():
+    data = request.json
+    result = watchlists.add_film(data["watchlist_id"], data["film_id"])
+    if result:
+        return jsonify({"message": "film added"})
+    return jsonify({"message": "already in watchlist"}), 400
+
+
+@app.route("/addwatchlistfilm", methods=["POST"])
+@check_jwt
+def remove_watchlist_film():
+    data = request.json
+    result = watchlists.remove_film(data["watchlist_id"], data["film_id"])
+    if result:
+        return jsonify({"message": "film removed"})
+    return jsonify({"message": "film not in watchlist"}), 400
+
+
+@app.route("/updatecorrelationcoefficient", methods=["POST"])
+@check_jwt
+def update_correlation_coefficient(username):
+    result = friends.update_coefficient(username, request.json)
+    if result:
+        return jsonify({"message": "coefficient updated"})
+    return jsonify({"message": "not friends"}), 400
+
+
+@app.route("/joinwatchlist", methods=["POST"])
+@check_jwt
+def join_watchlist(username):
+    result = watchlists.add_user(username, request.json["watchlist_id"])
+    if result == "watchlist joined":
+        return jsonify({"message": result})
+    return jsonify({"message": result}), 400
+
+
+@app.route("/watchlistinvite", methods=["POST"])
+@check_jwt
+def watchlist_invite():
+    data = request.json
+    result = watchlists.invite_user(data)
+    if result == "user invited":
+        return jsonify({"message": result})
+    return jsonify({"message": result}), 400
+
+
+@app.route("/createwatchlist", methods=["POST"])
+@check_jwt
+def create_watchlist(username):
+    result = watchlists.create_list(username, request.json["watchlist name"])
+    return jsonify({"watchlist_id": result})
+
+
 if __name__ == "__main__":
     app.run(debug=True)

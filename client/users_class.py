@@ -16,7 +16,7 @@ class User:
         self.films = []
         self.ratings_dates = []
         self.watchlists = []
-        self.watchlist_permissions = []
+        self.watchlist_invites = []
         self.friends = []
         self.friend_statuses = []
         self.set_films(token)
@@ -113,7 +113,7 @@ class User:
 
         return self.friend_statuses[index][0]
 
-    def get_watchlist_permissions(self, watchlist):
+    def get_watchlist_invites(self, watchlist):
         index = None
         for i in range(len(self.watchlists)):
             if self.watchlists[i].watchlist_id == watchlist.watchlist_id:
@@ -122,7 +122,7 @@ class User:
         if index is None:
             return "not in watchlist"
 
-        return self.watchlist_permissions[index]
+        return self.watchlist_invites[index]
 
     def get_rating(self, film):
         index = None
@@ -157,15 +157,18 @@ class User:
     def set_watchlists_in(self):
         db_watchlists = self.get_watchlists_in()
         watchlists = []
-        watchlist_permissions = []
+        watchlist_invites = []
         for db_watchlist in db_watchlists:
             watchlists.append(
                 watchlist_class.Watchlist(db_watchlist[0], db_watchlist[1], self.token)
             )
-            watchlist_permissions.append(db_watchlist[2])
+            if db_watchlist[2] == "True":
+                watchlist_invites.append(True)
+            else:
+                watchlist_invites.append(False)
 
         self.watchlists = watchlists
-        self.watchlist_permissions = []
+        self.watchlist_invites = watchlist_invites
 
     def get_friends(self):
         response = requests.get(self.url + "getfriends", headers=self.auth_header)
@@ -200,8 +203,9 @@ class ClientUser(User):
         if response.status_code == 401:
             token_handling.expired_token()
 
-        self.films.append(film)
-        self.ratings_dates.append(rating, datetime.date.today())
+        if response.status_code == 200:
+            self.films.append(film)
+            self.ratings_dates.append(rating, datetime.date.today())
 
     # CHECK THAT USER EXISTS BEFORE CREATING FRIEND OBJECT CLIENT SIDE
     def add_friend(self, friend):
@@ -224,10 +228,13 @@ class ClientUser(User):
             return friend_response.json()["message"]
         if friend_response.status_code == 400:
             return friend_response.json()["message"]
+
+        self.friends.append(friend)
+        self.friend_statuses.append("Request")
         return "friend added"
 
-    def accept_friend(self, friend_username):
-        users_info = {"friend_username": friend_username}
+    def accept_friend(self, friend):
+        users_info = {"friend_username": friend.username}
 
         response = requests.post(
             self.url + "acceptfriend", json=users_info, headers=self.auth_header
@@ -239,14 +246,77 @@ class ClientUser(User):
         if response.status_code == 400:
             return response.json()["message"]
 
+        # UPDATE FRIENDSHIP STATUS IN THE OBJECT HERE
+        index = None
+        for i in range(len(self.friends)):
+            if self.friends[i].username == friend.username:
+                index = i
+
+        self.friend_statuses[index][0] = "Accepted"
+
         return "friend added"
 
+    def update_correlation_coefficient(self, friend, corr_coeff):
+        users_info = {
+            "friend_username": friend.username,
+            "correlation_coefficient": corr_coeff,
+        }
+
+        response = requests.post(
+            self.url + "updatecorrelationcoefficient",
+            json=users_info,
+            headers=self.auth_header,
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+
+        return response.json()["message"]
+
+    def create_watchlist(self, watchlist_name):
+        if len(watchlist_name) > 254:
+            return "name too long"
+
+        watchlist_info = {"watchlist name": watchlist_name}
+
+        response = requests.post(
+            self.url + "createwatchlist", json=watchlist_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+
+        watchlist_id = response.json()["watchlist_id"]
+
+        return watchlist_class.Watchlist(watchlist_id, watchlist_name, self.token)
+
+    def join_watchlist(self, watchlist):
+        watchlist_info = {"watchlist_id": watchlist.watchlist_id}
+
+        response = requests.post(
+            self.url + "joinwatchlist", json=watchlist_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+
+        return response.json()["message"]
+
+    def invite_user_to_watchlist(self, invited_user, watchlist):
+        if self.get_watchlist_invites(watchlist):
+            return "you are only invited to the watchlist"
+
+        watchlist_info = {
+            "watchlist_id": watchlist.watchlist_id,
+            "invited_username": invited_user.username,
+        }
+
+        response = requests.post(
+            self.url + "watchlistinvite", json=watchlist_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+
     def recommend_film(self, watchlist):
-        pass
-
-    def create_watchlist(self):
-        # put in db, create and return object
-        pass
-
-    def join_watchlist(self):
         pass
