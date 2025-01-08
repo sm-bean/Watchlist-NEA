@@ -26,9 +26,32 @@ def predict_value(user, film, friends):
     raters_correlation = 0
 
     for friend in friends:
-        raters_diff += (
-            friend.get_rating(film) - friend.avg_rating
-        ) * user.get_correlation_coefficient(friend)
-        raters_correlation += abs(user.get_correlation_coefficient(friend))
+        friend_rating = friend[0].get_rating(film)
+        if friend_rating != "not seen":
+            raters_diff += (friend[0].get_rating(film) - friend[0].avg_rating) * friend[
+                1
+            ]
+            raters_correlation += abs(user.get_correlation_coefficient(friend))
+
+    if raters_correlation == 0:
+        return "no neighbours seen"
 
     return user.avg_rating + raters_diff / raters_correlation
+
+
+def recommend_film(user, watchlist):
+    neighbours = user.get_neighbours()
+    best_film = None
+    best_predicted = 0
+
+    for film in watchlist.films:
+        predicted_value = predict_value(user, film, neighbours)
+        if predicted_value != "no neighbours seen":
+            if predicted_value > best_predicted:
+                best_predicted = predicted_value
+                best_film = film
+
+    if best_film is None:
+        return watchlist.get_random_film()
+
+    return best_film

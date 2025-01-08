@@ -19,7 +19,9 @@ class User:
         self.watchlist_invites = []
         self.friends = []
         self.friend_statuses = []
-        self.set_films(token)
+        self.avg_rating = 0
+        self.set_films()
+        self.set_avg_rating()
 
     def get_films(self):
         response = requests.get(self.url + "getfilms", headers=self.auth_header)
@@ -186,6 +188,9 @@ class User:
             friends.append(User(db_friend[0], self.token))
             friend_statuses.append([db_friend[1], db_friend[2]])
 
+    def set_avg_rating(self):
+        pass
+
 
 class ClientUser(User):
     def __init__(self, username, token):
@@ -318,5 +323,5 @@ class ClientUser(User):
         if response.status_code == 401:
             token_handling.expired_token()
 
-    def recommend_film(self, watchlist):
+    def get_neighbours(self):
         pass
