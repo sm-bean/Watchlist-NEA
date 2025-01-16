@@ -1,7 +1,7 @@
 from math import sqrt
 
 
-def correlation_coefficient(x, y, common_films):
+def correlation_coefficient(x, y):
 
     common_films = x.get_common_films(y)
 
@@ -21,17 +21,17 @@ def correlation_coefficient(x, y, common_films):
     return co_total / (x_sigma * y_sigma)
 
 
-def predict_value(user, film, friends):
+def predict_value(user, film, friends, friend_correlation_coefficients):
     raters_diff = 0
     raters_correlation = 0
 
-    for friend in friends:
-        friend_rating = friend[0].get_rating(film)
+    for i in range(len(friends)):
+        friend_rating = friends[i].get_rating(film)
         if friend_rating != "not seen":
-            raters_diff += (friend[0].get_rating(film) - friend[0].avg_rating) * friend[
-                1
-            ]
-            raters_correlation += abs(user.get_correlation_coefficient(friend))
+            raters_diff += (
+                friends[i].get_rating(film) - friends[i].avg_rating
+            ) * friend_correlation_coefficients[i]
+            raters_correlation += abs(friend_correlation_coefficients[i])
 
     if raters_correlation == 0:
         return "no neighbours seen"
@@ -40,12 +40,15 @@ def predict_value(user, film, friends):
 
 
 def recommend_film(user, watchlist):
-    neighbours = user.get_neighbours()
+    neighbours = user.neighbours
+    neighbours_correlation_coefficients = user.neighbours_correlation_coefficients
     best_film = None
     best_predicted = 0
 
     for film in watchlist.films:
-        predicted_value = predict_value(user, film, neighbours)
+        predicted_value = predict_value(
+            user, film, neighbours, neighbours_correlation_coefficients
+        )
         if predicted_value != "no neighbours seen":
             if predicted_value > best_predicted:
                 best_predicted = predicted_value

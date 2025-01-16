@@ -20,6 +20,8 @@ class User:
         self.friends = []
         self.friend_statuses = []
         self.avg_rating = 0
+        self.neighbours = []
+        self.neighbours_correlation_coefficients = []
         self.set_films()
         self.set_avg_rating()
 
@@ -197,6 +199,7 @@ class ClientUser(User):
         User.__init__(self, username, token)
         self.set_friends()
         self.set_watchlists_in()
+        self.set_neighbours()
 
     def log_film(self, film, rating):
         rating_info = {"film_id": film.film_id, "rating": rating}
@@ -323,5 +326,51 @@ class ClientUser(User):
         if response.status_code == 401:
             token_handling.expired_token()
 
-    def get_neighbours(self):
-        pass
+    def get_neighbours(self, num_neighbours, threshold):  #
+        friend_correlation_coefficients = []
+        neighbours_correlation_coefficients = []
+
+        for status in self.friend_statuses:
+            friend_correlation_coefficients.append(status[1])
+
+        neighbours = []
+        for i in range(len(self.friends)):
+            if friend_correlation_coefficients[i] >= threshold:
+                neighbours.append(self.friends[i])
+                neighbours_correlation_coefficients.append(
+                    friend_correlation_coefficients[i]
+                )
+                if len(neighbours) >= num_neighbours:
+                    return neighbours
+
+        temp_friends = self.friends[:]
+
+        while len(neighbours) < num_neighbours:
+            max_friend_index = friend_correlation_coefficients.index(
+                max(friend_correlation_coefficients)
+            )
+            max_friend = temp_friends[max_friend_index]
+            del temp_friends[max_friend_index]
+            del friend_correlation_coefficients[max_friend_index]
+
+            max_friend.set_friends()
+
+            for friend in max_friend.friends:
+                correlation_coefficient = recommendation.correlation_coefficient(
+                    self, friend
+                )
+                if correlation_coefficient >= threshold:
+                    neighbours.append(friend)
+                    neighbours_correlation_coefficients.append(correlation_coefficient)
+                    if len(neighbours) >= num_neighbours:
+                        return neighbours
+
+        return neighbours, neighbours_correlation_coefficients
+
+    def set_neighbours(self, num_neighbours, threshold):
+        neighbours, neighbours_correlation_coefficients = self.get_neighbours(
+            num_neighbours, threshold
+        )
+
+        self.neighbours = neighbours
+        self.neighbours_correlation_coefficients = neighbours_correlation_coefficients
