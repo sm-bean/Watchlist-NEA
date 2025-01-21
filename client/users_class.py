@@ -76,7 +76,7 @@ class User:
 
         iterations = 5
 
-        if len(films_dupe) < 5:
+        if len(films_dupe) < iterations:
             if len(films_dupe) == 0:
                 return []
             iterations = len(films_dupe)
@@ -281,10 +281,8 @@ class ClientUser(User):
 
         return response.json()["message"]
 
+    #UPDATE WATCHLIST LIST IN OBJECT AFTER CREATING
     def create_watchlist(self, watchlist_name):
-        if len(watchlist_name) > 254:
-            return "name too long"
-
         watchlist_info = {"watchlist name": watchlist_name}
 
         response = requests.post(
@@ -326,7 +324,9 @@ class ClientUser(User):
         if response.status_code == 401:
             token_handling.expired_token()
 
-    def get_neighbours(self, num_neighbours, threshold):  #
+        return response.json()["message"]
+
+    def get_neighbours(self, num_neighbours, threshold):
         friend_correlation_coefficients = []
         neighbours_correlation_coefficients = []
 
