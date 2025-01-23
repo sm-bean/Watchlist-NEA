@@ -76,10 +76,7 @@ class ClientSession:
 
     def homepage(self):
         print(f"Hi, {self.user.username}")
-        print(f"Your five most recently watched films are:")
-        recently_watched = user.get_recently_watched_films()
-        for film in recently_watched:
-            print(film.title)
+        
 
 
         user_answer = input("""What would you like to do? \n 
@@ -87,8 +84,9 @@ class ClientSession:
         2 to see your films \n
         3 to add a friend \n
         4 to see your notifications \n
-        5 to log a film""")
-        options = ["1", "2", "3", "4", "5"]
+        5 to log a film \n
+        6 to see your 5 most recently watched films""")
+        options = ["1", "2", "3", "4", "5", "6"]
         while user_answer not in options:
             user_answer = input("Please enter one of the options: ")
         
@@ -102,10 +100,56 @@ class ClientSession:
             self.notifications()
         if user_answer == "5":
             self.log_film()
+        if user_answer == "6":
+            print(f"Your five most recently watched films are:")
+            recently_watched = user.get_recently_watched_films()
+            for film in recently_watched:
+                print(film.title)
+            
+            self.homepage()
 
 
     def watchlist_home(self):
-        pass
+        print("Your available watchlists:")
+        watchlist_options = []
+        indexes = []
+        options = []
+        j = 1
+        for i in range(len(self.user.watchlists)):
+            if self.user.watchlist_invites == "": # FILL THIS IN (SHOULD BE NOT INVITED BUT IN)
+                print(f"{str(j)}. {self.user.watchlists[i].name}")
+                watchlist_options.append(self.user.watchlists[i])
+                indexes.append(i)
+                j += 1
+
+        if j == 1:
+            "You are not in any watchlists"
+            
+        user_answer = input("""What would you like to do? \n
+        Enter 1 to choose a watchlist to view or edit \n
+        Enter 2 to create a watchlist \n
+        Enter 3 to return home \n""")
+        while user_answer not in ["1", "2", "3"] or (user_answer == "1" and j == 1):
+            if user_answer == "1" and j == 1:
+                user_answer = input("You are not in any watchlists, please choose another option: ")
+            else:
+                user_answer = input("Please enter one of the options")
+        
+        if user_answer == "1":
+            user_answer = input("Which watchlist would you like to view or edit? Enter the number that it was displayed with: ")
+            options = range(1, j)
+            for i in range(len(options)):
+                options[i] = str(options[i])
+            while user_answer not in options:
+                user_answer = input("Please enter one of the options")
+            
+            user_choice = watchlist_options[indexes[int(user_answer) - 1]]
+            self.view_watchlist(user_choice)
+        if user_answer == "2":
+            self.create_watchlist()
+        if user_answer == "3":
+            self.homepage()
+
 
     def view_watchlist(self, watchlist):
         pass
@@ -120,7 +164,35 @@ class ClientSession:
         pass
 
     def find_friend(self):
-        pass
+        friend_chosen = False
+        friend_username = ""
+        while friend_chosen == False:
+            friend_username = input("What is the username of the person you would like to add? ")
+            if token_handling.check_username_available(friend_username):
+                "user does not exist"
+            else:
+                friend_chosen = True
+        
+        friend = users_class.User(friend_username, self.user.token)
+
+        result = self.user.add_friend(friend)
+
+        if result == "friend added":
+            print("friend request sent")
+        else:
+            print("You have already requested to be or are friends with this user")
+        
+
+        user_answer = input("Enter 1 to return to your homepage or 2 to add a friend again")
+
+        while user_answer not in ["1", "2"]:
+            user_answer = input("Please enter one of the options: ")
+
+        if user_answer == "1":
+            self.homepage()
+        if user_answer == "2":
+            self.find_friend()
+
 
     def notifications(self):
         pass

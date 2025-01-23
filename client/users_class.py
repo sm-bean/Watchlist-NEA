@@ -210,10 +210,13 @@ class ClientUser(User):
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 400:
+            return response.json()["message"]
 
-        if response.status_code == 200:
-            self.films.append(film)
-            self.ratings_dates.append(rating, datetime.date.today())
+        self.films.append(film)
+        self.ratings_dates.append(rating, datetime.date.today())
+
+        return "film logged"
 
     # CHECK THAT USER EXISTS BEFORE CREATING FRIEND OBJECT CLIENT SIDE
     def add_friend(self, friend):
