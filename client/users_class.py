@@ -191,7 +191,7 @@ class User:
             friend_statuses.append([db_friend[1], db_friend[2]])
 
     def set_avg_rating(self):
-        pass
+        pass  # DO THIS
 
 
 class ClientUser(User):
@@ -218,16 +218,15 @@ class ClientUser(User):
 
         return "film logged"
 
-    # CHECK THAT USER EXISTS BEFORE CREATING FRIEND OBJECT CLIENT SIDE
     def add_friend(self, friend):
         if token_handling.check_username_available(friend.username):
             return "user does not exist"
 
+        cc = recommendation.correlation_coefficient(self, friend)
+
         users_info = {
             "friend_username": friend.username,
-            "correlation coefficient": recommendation.correlation_coefficient(
-                self, friend
-            ),
+            "correlation coefficient": cc,
         }
 
         friend_response = requests.post(
@@ -241,7 +240,7 @@ class ClientUser(User):
             return friend_response.json()["message"]
 
         self.friends.append(friend)
-        self.friend_statuses.append("Request")
+        self.friend_statuses.append(["Request", cc])
         return "friend added"
 
     def accept_friend(self, friend):
@@ -284,7 +283,7 @@ class ClientUser(User):
 
         return response.json()["message"]
 
-    #UPDATE WATCHLIST LIST IN OBJECT AFTER CREATING
+    # UPDATE WATCHLIST LIST IN OBJECT AFTER CREATING
     def create_watchlist(self, watchlist_name):
         watchlist_info = {"watchlist name": watchlist_name}
 

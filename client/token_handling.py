@@ -23,10 +23,13 @@ def check_username_available(username):
 
     return response.json()["available"]
 
+
 def create_account(username, password):
     account_info = {"username": username, "password": password}
 
-    response = requests.post("http://127.0.0.1:5000/" + "createaccount", json=username_info)
+    response = requests.post(
+        "http://127.0.0.1:5000/" + "createaccount", json=account_info
+    )
 
     if response.status_code == 200:
         return users_class.ClientUser(username, response.json()["token"])
