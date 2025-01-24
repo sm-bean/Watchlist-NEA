@@ -158,7 +158,37 @@ class ClientSession:
             self.homepage()
 
     def view_watchlist(self, watchlist):
-        pass
+        print("The films in your watchlist are:")
+        for film in watchlist.films:
+            print(film.title)
+        
+        user_answer = input("""What would you like to do? \n
+        Enter 1 to add a film to the watchlist \n
+        Enter 2 to invite a user to the watchlist \n
+        Enter 3 to get a recommendation for a film from the watchlist \n
+        Enter 4 to get a random film from the watchlist \n
+        Enter 5 to choose a different watchlist \n
+        Enter 6 to go back to homepage""")
+
+        options = ["1", "2", "3", "4", "5", "6"]
+        while user_answer not in options:
+            user_answer = input("Please enter one of the options: ")
+        
+        if user_answer == "1":
+            self.add_watchlist_film(watchlist)
+        if user_answer == "2":
+            self.watchlist_invite(watchlist)
+        if user_answer == "3":
+            print(f"Try {recommendation.recommend_film(self.user, watchlist).title}")
+            self.view_watchlist(watchlist)
+        if user_answer == "4":
+            print(f"Try {watchlist.get_random_film().title}")
+        if user_answer == "5":
+            self.watchlist_home()
+        if user_answer == "6":
+            self.homepage()
+
+
 
     def add_watchlist_film(self, watchlist):
         pass
@@ -232,7 +262,7 @@ class ClientSession:
             self.homepage()
 
         user_answer = input(
-            "Which watchlist would you like to view or edit? Enter the number that it was displayed with or enter nothing to return to the homepage: "
+            "Which watchlist would you like to join? Enter the number that it was displayed with or enter nothing to return to the homepage: "
         )
         options = range(1, j)
         for i in range(len(options)):
