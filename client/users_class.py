@@ -191,7 +191,11 @@ class User:
             friend_statuses.append([db_friend[1], db_friend[2]])
 
     def set_avg_rating(self):
-        pass  # DO THIS
+        ratings_sum = 0
+        for rating in self.ratings_dates:
+            ratings_sum += rating[0]
+
+        self.avg_rating = ratings_sum / len(self.ratings_dates)
 
 
 class ClientUser(User):

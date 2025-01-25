@@ -1,4 +1,5 @@
 import token_handling
+import recommendation
 import users_class
 
 
@@ -161,19 +162,21 @@ class ClientSession:
         print("The films in your watchlist are:")
         for film in watchlist.films:
             print(film.title)
-        
-        user_answer = input("""What would you like to do? \n
+
+        user_answer = input(
+            """What would you like to do? \n
         Enter 1 to add a film to the watchlist \n
         Enter 2 to invite a user to the watchlist \n
         Enter 3 to get a recommendation for a film from the watchlist \n
         Enter 4 to get a random film from the watchlist \n
         Enter 5 to choose a different watchlist \n
-        Enter 6 to go back to homepage""")
+        Enter 6 to go back to homepage"""
+        )
 
         options = ["1", "2", "3", "4", "5", "6"]
         while user_answer not in options:
             user_answer = input("Please enter one of the options: ")
-        
+
         if user_answer == "1":
             self.add_watchlist_film(watchlist)
         if user_answer == "2":
@@ -187,8 +190,6 @@ class ClientSession:
             self.watchlist_home()
         if user_answer == "6":
             self.homepage()
-
-
 
     def add_watchlist_film(self, watchlist):
         pass
