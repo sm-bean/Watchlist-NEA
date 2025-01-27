@@ -198,7 +198,14 @@ class ClientSession:
         pass
 
     def films_seen(self):
-        pass
+        print("Your films seen are: ")
+        for i in range(len(self.user.films)):
+            print(
+                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0])} on {str(self.user.ratings_dates[i][1])}"
+            )
+
+        x = input("Press enter to return home")
+        self.homepage()
 
     def find_friend(self):
         friend_chosen = False
