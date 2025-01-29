@@ -222,6 +222,28 @@ class ClientUser(User):
 
         return "film logged"
 
+    def search_film(self, film_title):
+        film_info = {"film_title": film_title}
+
+        response = requests.post(
+            self.url + "searchfilm", json=film_info, headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+
+        films = response.json()["films"]
+
+        if films is None:
+            return "not found"
+
+        films_objects = []
+        for film in films:
+            films_objects.append(
+                films_class.Film(film[0], film[1], film[2], film[3], film[4], film[5])
+            )
+        return films
+
     def add_friend(self, friend):
         if token_handling.check_username_available(friend.username):
             return "user does not exist"

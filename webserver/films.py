@@ -62,3 +62,25 @@ def log_film_watched(username, data):
     mydb.close()
 
     return False
+
+
+def find_film(film_title):
+    dotenv.load_dotenv()
+    db_password = os.getenv("db_password")
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="serverconnection",
+        password=db_password,
+        database="watchlists",
+    )
+
+    mycursor = mydb.cursor()
+    film_query = "SELECT FilmID, Title, AverageRating, ReleaseDate, Runtime, Genre FROM films WHERE Title = %s"
+    val = film_title
+    mycursor.execute(film_query, val)
+    myresult = mycursor.fetchall()
+
+    mycursor.close()
+    mydb.close()
+
+    return myresult

@@ -192,10 +192,111 @@ class ClientSession:
             self.homepage()
 
     def add_watchlist_film(self, watchlist):
-        pass
+        film_found = False
+        film_search = ""
+        user_answer = ""
+        options = []
+        film = None
+        while film_found == False:
+            while film_search == "":
+                film_search = input(
+                    "Enter the title of the film you would like to log: "
+                )
+                if film_search == "":
+                    print("Please enter a film")
+
+            result = self.user.search_film(film_search)
+
+            if result == "not found":
+                print(
+                    "A film by that name does not exist. Make sure you did not make any typos"
+                )
+
+            else:
+                if len(result) == 1:
+                    film_found = True
+                    film = result[0]
+
+                else:
+                    for i in range(len(result)):
+                        print(
+                            f"{i + 1}. {result[i].title}, released {result[i].release_date} with runtime {result[i].runtime}"
+                        )
+                        options.append(str(i + 1))
+
+                    while user_answer not in options:
+                        user_answer = input("Which number would you like to choose? ")
+                        if user_answer not in options:
+                            print("Please pick an available option")
+
+                        film_found = True
+                        film = result[int(user_answer) - 1]
+
+        added = watchlist.add_film(self.user, film)
+
+        if added == "film added":
+            print("Film successfully added")
+        elif added == "already in watchlist":
+            print("That film is already in your watchlist")
+
+        self.homepage()
 
     def log_film(self):
-        pass
+        film_found = False
+        film_search = ""
+        user_answer = ""
+        options = []
+        film = None
+        while film_found == False:
+            while film_search == "":
+                film_search = input(
+                    "Enter the title of the film you would like to log: "
+                )
+                if film_search == "":
+                    print("Please enter a film")
+
+            result = self.user.search_film(film_search)
+
+            if result == "not found":
+                print(
+                    "A film by that name does not exist. Make sure you did not make any typos"
+                )
+
+            else:
+                if len(result) == 1:
+                    film_found = True
+                    film = result[0]
+
+                else:
+                    for i in range(len(result)):
+                        print(
+                            f"{i + 1}. {result[i].title}, released {result[i].release_date} with runtime {result[i].runtime}"
+                        )
+                        options.append(str(i + 1))
+
+                    while user_answer not in options:
+                        user_answer = input("Which number would you like to choose? ")
+                        if user_answer not in options:
+                            print("Please pick an available option")
+
+                        film_found = True
+                        film = result[int(user_answer) - 1]
+
+        rating = ""
+
+        rating_options = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+        while rating not in rating_options:
+            rating = input(
+                "What would like to rate the film? Pick a whole number from 1 to 10: "
+            )
+
+        logged = self.user.log_film(film, int(rating))
+        if logged == "film logged":
+            print("Film successfully logged")
+        elif logged == "already logged":
+            print("You have already logged that film")
+
+        self.homepage()
 
     def films_seen(self):
         print("Your films seen are: ")

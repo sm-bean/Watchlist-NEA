@@ -184,5 +184,13 @@ def create_watchlist(username):
     return jsonify({"watchlist_id": result})
 
 
+@app.route("/searchfilm", methods=["POST"])
+@check_jwt
+def search_film():
+    data = request.json
+    result = films.find_film(data["film_title"])
+    return jsonify({"films": result})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
