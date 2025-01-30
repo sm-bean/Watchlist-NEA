@@ -9,10 +9,10 @@ class ClientSession:
 
     def start_app(self):
         user_answer = 0
-        while user_answer != 1 and user_answer != 2:
+        while user_answer != "1" and user_answer != "2":
             user_answer = input("Enter 1 to log in or 2 to create an account: ")
 
-        if user_answer == 1:
+        if user_answer == "1":
             self.log_in()
         else:
             self.create_account()
@@ -62,11 +62,11 @@ class ClientSession:
 
             user_answer = ""
             while user_answer == "":
-                user_answer = input("Please enter a password")
+                user_answer = input("Please enter a password: ")
 
             password = user_answer
 
-            user_answer = input("Please confirm your password")
+            user_answer = input("Please confirm your password: ")
 
             if password == user_answer:
                 password_chosen = True

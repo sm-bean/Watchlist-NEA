@@ -19,7 +19,9 @@ def login(username, password):
 
 def check_username_available(username):
     username_info = {"username": username}
-    response = requests.post("http://127.0.0.1:5000/", json=username_info)
+    response = requests.post(
+        "http://127.0.0.1:5000/" + "checkusername", json=username_info
+    )
 
     return response.json()["available"]
 

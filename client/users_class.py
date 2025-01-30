@@ -292,6 +292,7 @@ class ClientUser(User):
 
         return "friend added"
 
+    # When will this be used
     def update_correlation_coefficient(self, friend, corr_coeff):
         users_info = {
             "friend_username": friend.username,

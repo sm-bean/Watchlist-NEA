@@ -59,7 +59,7 @@ class Watchlist:
 
         return response.json()["message"]
 
-    def remove_film(self, user, film):
+    def remove_film(self, user, film):  # REMOVE THIS MAYBE?
         if user.get_watchlist_invites(self):
             return "user only invited to watchlist"
 

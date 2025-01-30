@@ -1,7 +1,4 @@
-import requests
+import user_interface
 
-url = "http://127.0.0.1:5000/login"
-login_info = {"username": "username", "password": "password"}
-response = requests.post(url, json=login_info)
-
-print(response.json()["token"])
+client_session = user_interface.ClientSession()
+client_session.start_app()
