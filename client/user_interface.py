@@ -1,6 +1,7 @@
 import token_handling
 import recommendation
 import users_class
+import datetime
 
 
 class ClientSession:
@@ -50,8 +51,10 @@ class ClientSession:
 
         while username_chosen == False:
             user_answer = ""
-            while user_answer == "":
+            while user_answer == "" or len(user_answer) > 254:
                 user_answer = input("Please enter your username: ")
+                if len(user_answer) > 254:
+                    print("name too long")
             username = user_answer
 
             username_chosen = token_handling.check_username_available(username)
@@ -261,6 +264,7 @@ class ClientSession:
                 print(
                     "A film by that name does not exist. Make sure you did not make any typos"
                 )
+                film_search = ""
 
             else:
                 if len(result) == 1:
@@ -299,13 +303,18 @@ class ClientSession:
         self.homepage()
 
     def films_seen(self):
+        if len(self.user.films) == 0:
+            print("You haven't logged any films")
+            input("Press enter to return home")
+            self.homepage()
+
         print("Your films seen are: ")
         for i in range(len(self.user.films)):
             print(
                 f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0])} on {str(self.user.ratings_dates[i][1])}"
             )
 
-        x = input("Press enter to return home")
+        input("Press enter to return home")
         self.homepage()
 
     def find_friend(self):
@@ -316,7 +325,7 @@ class ClientSession:
                 "What is the username of the person you would like to add? "
             )
             if token_handling.check_username_available(friend_username):
-                "user does not exist"
+                print("user does not exist")
             else:
                 friend_chosen = True
 
@@ -387,16 +396,20 @@ class ClientSession:
         self.homepage()
 
     def friendship_notifications(self):
-        print("You have friend requests from:")
         friend_options = []
 
-        for i in range(len(self.user.friends)):
-            if self.user.friend_statuses[i][0] == "Request":
-                print(self.user.friends[i].username)
-                friend_options.append(self.user.friends[i].username)
+        if len(self.user.friend_requests) == 0:
+            input("You have no friend requests, press enter to return to the homepage")
+            self.homepage()
+
+        print("You have friend requests from:")
+
+        for friend in self.user.friend_requests:
+            print(friend)
+            friend_options.append(friend)
 
         user_answer = input(
-            "Which request would you like to accept? Enter their username or enter nothing to return to the homepage"
+            "Which request would you like to accept? Enter their username or enter nothing to return to the homepage: "
         )
         while user_answer not in friend_options:
             if user_answer == "":

@@ -76,7 +76,7 @@ def find_film(film_title):
 
     mycursor = mydb.cursor()
     film_query = "SELECT FilmID, Title, AverageRating, ReleaseDate, Runtime, Genre FROM films WHERE Title = %s"
-    val = film_title
+    val = (film_title,)
     mycursor.execute(film_query, val)
     myresult = mycursor.fetchall()
 

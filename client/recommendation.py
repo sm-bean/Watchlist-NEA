@@ -5,6 +5,9 @@ def correlation_coefficient(x, y):
 
     common_films = x.get_common_films(y)
 
+    if len(common_films) == 0:
+        return 0
+
     co_total = 0
     x_sigma = 0
     y_sigma = 0

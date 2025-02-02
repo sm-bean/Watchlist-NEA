@@ -24,11 +24,12 @@ def request_friend(username1, data):
 
     val = (username1, username2)
     mycursor.execute(friendship_query, val)
+    myresult1 = mycursor.fetchone()
     val = (username2, username1)
     mycursor.execute(friendship_query, val)
-    myresult = mycursor.fetchone()
+    myresult2 = mycursor.fetchone()
 
-    if myresult is None:
+    if myresult1 is None and myresult2 is None:
         friendship_query = "INSERT INTO friendships (Username1, Username2, Status, CorrelationCoefficient) VALUES (%s, %s, %s, %s)"
         val = (username1, username2, friendship_status, cor_coeff)
         mycursor.execute(friendship_query, val)
@@ -79,7 +80,8 @@ def accept_friendship(username1, username2):
     friendship_query = (
         "UPDATE friendships SET Status = %s WHERE Username1 = %s AND Username2 = %s"
     )
-    mycursor.execute("Accepted", friendship_query, val)
+    val = ("Accepted", username2, username1)
+    mycursor.execute(friendship_query, val)
     mydb.commit()
 
     mycursor.close()
@@ -102,9 +104,38 @@ def get_friendships(username):
     friendship_query = "SELECT Username2, Status, CorrelationCoefficient FROM friendships WHERE Username1 = %s"
     val = (username,)
     mycursor.execute(friendship_query, val)
-    friendship_query(
-        "SELECT Username1, Status, CorrelationCoefficient FROM friendships WHERE Username2 = %s"
+    myresult1 = mycursor.fetchall()
+    friendship_query = "SELECT Username1, Status, CorrelationCoefficient FROM friendships WHERE Username2 = %s"
+    mycursor.execute(friendship_query, val)
+    myresult2 = mycursor.fetchall()
+    if myresult1 is None:
+        myresult = myresult2
+    elif myresult2 is None:
+        myresult = myresult1
+    else:
+        myresult = myresult1 + myresult2
+
+    mycursor.close()
+    mydb.close()
+
+    return myresult
+
+
+def get_friendship_requests(username):
+    dotenv.load_dotenv()
+    db_password = os.getenv("db_password")
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="serverconnection",
+        password=db_password,
+        database="watchlists",
     )
+
+    mycursor = mydb.cursor()
+    friendship_query = (
+        "SELECT Username1 FROM friendships WHERE Username2 = %s AND Status = %s"
+    )
+    val = (username, "Request")
     mycursor.execute(friendship_query, val)
     myresult = mycursor.fetchall()
 

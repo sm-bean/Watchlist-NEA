@@ -9,6 +9,7 @@ import jwt
 import dotenv
 import os
 
+
 app = Flask(__name__)
 
 
@@ -27,7 +28,7 @@ def check_jwt(func):
             jwt_secret = os.getenv("jwt_secret")
             algorithm = os.getenv("algorithm")
 
-            username = jwt.decode(token, jwt_secret, algorithm)["username"]
+            username = jwt.decode(token, jwt_secret, algorithm)["user"]
 
         except jwt.ExpiredSignatureError:
             return jsonify({"message": "token expired"}), 401
@@ -119,6 +120,13 @@ def get_watchlists_in(username):
 def get_friends(username):
     result = friends.get_friendships(username)
     return jsonify({"friendships": result})
+
+
+@app.route("/getfriendrequests", methods=["GET"])
+@check_jwt
+def get_friend_requests(username):
+    result = friends.get_friendship_requests(username)
+    return jsonify({"friend requests": result})
 
 
 @app.route("/getwatchlistmembers", methods=["POST"])

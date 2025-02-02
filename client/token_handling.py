@@ -7,6 +7,11 @@ def expired_token():
     quit()
 
 
+def server_side_error():
+    print("A server side error occured, restart program to log back in again")
+    quit()
+
+
 def login(username, password):
     login_info = {"username": username, "password": password}
 

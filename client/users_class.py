@@ -19,17 +19,20 @@ class User:
         self.watchlist_invites = []
         self.friends = []
         self.friend_statuses = []
+        self.friend_requests = []
         self.avg_rating = 0
         self.neighbours = []
         self.neighbours_correlation_coefficients = []
-        self.set_films()
-        self.set_avg_rating()
+        # self.set_films()
+        # self.set_avg_rating()
 
     def get_films(self):
         response = requests.get(self.url + "getfilms", headers=self.auth_header)
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         return response.json()["films"]
 
@@ -155,6 +158,8 @@ class User:
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         return response.json()["watchlists"]
 
@@ -179,6 +184,8 @@ class User:
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         return response.json()["friendships"]
 
@@ -186,9 +193,41 @@ class User:
         db_friends = self.get_friends()
         friends = []
         friend_statuses = []
-        for db_friend in db_friends:
-            friends.append(User(db_friend[0], self.token))
-            friend_statuses.append([db_friend[1], db_friend[2]])
+        if db_friends is None:
+            self.friends = []
+            self.friend_statuses = []
+        else:
+            for db_friend in db_friends:
+                friends.append(User(db_friend[0], self.token))
+                friend_statuses.append([db_friend[1], db_friend[2]])
+
+            self.friends = friends
+            self.friend_statuses = friend_statuses
+
+    def get_friend_requests(self):
+        response = requests.get(
+            self.url + "getfriendrequests", headers=self.auth_header
+        )
+
+        if response.status_code == 401:
+            token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
+
+        return response.json()["friend requests"]
+
+    def set_friend_requests(self):
+        db_friend_requests = self.get_friend_requests()
+
+        if db_friend_requests is None:
+            self.friend_requests = []
+        else:
+            friend_requests = []
+
+            for db_friend_request in db_friend_requests:
+                friend_requests.append(db_friend_request[0])
+
+            self.friend_requests = friend_requests
 
     def set_avg_rating(self):
         ratings_sum = 0
@@ -202,8 +241,12 @@ class ClientUser(User):
     def __init__(self, username, token):
         User.__init__(self, username, token)
         self.set_friends()
-        self.set_watchlists_in()
-        self.set_neighbours()
+        self.set_friend_requests()
+        self.set_films()
+        print(self.films)
+        print(self.ratings_dates)
+        # self.set_watchlists_in()
+        # self.set_neighbours()
 
     def log_film(self, film, rating):
         rating_info = {"film_id": film.film_id, "rating": rating}
@@ -218,7 +261,7 @@ class ClientUser(User):
             return response.json()["message"]
 
         self.films.append(film)
-        self.ratings_dates.append(rating, datetime.date.today())
+        self.ratings_dates.append([rating, datetime.date.today()])
 
         return "film logged"
 
@@ -231,10 +274,12 @@ class ClientUser(User):
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         films = response.json()["films"]
 
-        if films is None:
+        if films == []:
             return "not found"
 
         films_objects = []
@@ -242,7 +287,7 @@ class ClientUser(User):
             films_objects.append(
                 films_class.Film(film[0], film[1], film[2], film[3], film[4], film[5])
             )
-        return films
+        return films_objects
 
     def add_friend(self, friend):
         if token_handling.check_username_available(friend.username):
@@ -264,6 +309,8 @@ class ClientUser(User):
             return friend_response.json()["message"]
         if friend_response.status_code == 400:
             return friend_response.json()["message"]
+        if friend_response.status_code == 500:
+            token_handling.server_side_error()
 
         self.friends.append(friend)
         self.friend_statuses.append(["Request", cc])
@@ -281,14 +328,16 @@ class ClientUser(User):
             return response.json()["message"]
         if response.status_code == 400:
             return response.json()["message"]
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
-        # UPDATE FRIENDSHIP STATUS IN THE OBJECT HERE
         index = None
         for i in range(len(self.friends)):
             if self.friends[i].username == friend.username:
                 index = i
 
         self.friend_statuses[index][0] = "Accepted"
+        self.friend_requests.remove(friend.username)
 
         return "friend added"
 
@@ -307,6 +356,8 @@ class ClientUser(User):
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         return response.json()["message"]
 
@@ -320,6 +371,8 @@ class ClientUser(User):
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         watchlist_id = response.json()["watchlist_id"]
 
@@ -334,6 +387,8 @@ class ClientUser(User):
 
         if response.status_code == 401:
             token_handling.expired_token()
+        if response.status_code == 500:
+            token_handling.server_side_error()
 
         return response.json()["message"]
 
