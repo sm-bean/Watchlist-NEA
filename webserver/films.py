@@ -26,7 +26,7 @@ def get_films_watched(username):
     return myresult
 
 
-def log_film_watched(username, data):
+def log_film_watched(data):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
     mydb = mysql.connector.connect(
@@ -36,6 +36,7 @@ def log_film_watched(username, data):
         database="watchlists",
     )
 
+    username = data["username"]
     film_id = data["film_id"]
     rating = data["rating"]
 
@@ -49,7 +50,7 @@ def log_film_watched(username, data):
 
     if myresult is None:
         film_query = "INSERT INTO userwatchedratings (FilmID, Username, Rating, DateWatched) VALUES (%s, %s, %s, %s)"
-        val = (film_id, username, rating, datetime.date.today())
+        val = (film_id, username, rating, datetime.datetime.now(datetime.timezone.utc))
         mycursor.execute(film_query, val)
         mydb.commit()
 

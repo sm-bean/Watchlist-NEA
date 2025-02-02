@@ -35,9 +35,6 @@ def check_jwt(func):
         except jwt.InvalidSignatureError:
             return jsonify({"message": "token invalid"}), 401
 
-        if "username" in inspect.getfullargspec(func).args:
-            kwargs["username"] = username
-
         return func(*args, **kwargs)
 
     return decorated_func
@@ -70,25 +67,27 @@ def create_account_server():
 
 @app.route("/addfriend", methods=["POST"])
 @check_jwt
-def add_friend(username):
-    if friends.request_friend(username, request.json):
+def add_friend():
+    if friends.request_friend(request.json):
         return jsonify({"message": "friend added"})
     return jsonify({"message": "already friends/requested"}), 400
 
 
 @app.route("/acceptfriend", methods=["POST"])
 @check_jwt
-def accept_friend(username):
-    result = friends.accept_friendship(username, request.json["friend_username"])
+def accept_friend():
+    result = friends.accept_friendship(
+        request.json["username"], request.json["friend_username"]
+    )
     if result == "friend added":
         return jsonify({"message": result})
     return jsonify({"message": result}), 400
 
 
-@app.route("/getfilms", methods=["GET"])
+@app.route("/getfilms", methods=["POST"])
 @check_jwt
-def get_films(username):
-    result = films.get_films_watched(username)
+def get_films():
+    result = films.get_films_watched(request.json["username"])
     return jsonify({"films": result})
 
 
@@ -102,30 +101,30 @@ def get_watchlist_films():
 
 @app.route("/logfilm", methods=["POST"])
 @check_jwt
-def log_film(username):
-    if films.log_film_watched(username, request.json):
+def log_film():
+    if films.log_film_watched(request.json):
         return jsonify({"message": "film logged"})
     return jsonify({"message": "already logged"}), 400
 
 
-@app.route("/getwatchlistsin", methods=["GET"])
+@app.route("/getwatchlistsin", methods=["POST"])
 @check_jwt
-def get_watchlists_in(username):
-    result = watchlists.get_watchlists_user_in(username)
+def get_watchlists_in():
+    result = watchlists.get_watchlists_user_in(request.json["username"])
     return jsonify({"watchlists": result})
 
 
-@app.route("/getfriends", methods=["GET"])
+@app.route("/getfriends", methods=["POST"])
 @check_jwt
-def get_friends(username):
-    result = friends.get_friendships(username)
+def get_friends():
+    result = friends.get_friendships(request.json["username"])
     return jsonify({"friendships": result})
 
 
-@app.route("/getfriendrequests", methods=["GET"])
+@app.route("/getfriendrequests", methods=["POST"])
 @check_jwt
-def get_friend_requests(username):
-    result = friends.get_friendship_requests(username)
+def get_friend_requests():
+    result = friends.get_friendship_requests(request.json["username"])
     return jsonify({"friend requests": result})
 
 
@@ -159,8 +158,8 @@ def remove_watchlist_film():
 
 @app.route("/updatecorrelationcoefficient", methods=["POST"])
 @check_jwt
-def update_correlation_coefficient(username):
-    result = friends.update_coefficient(username, request.json)
+def update_correlation_coefficient():
+    result = friends.update_coefficient(request.json)
     if result:
         return jsonify({"message": "coefficient updated"})
     return jsonify({"message": "not friends"}), 400
@@ -168,8 +167,8 @@ def update_correlation_coefficient(username):
 
 @app.route("/joinwatchlist", methods=["POST"])
 @check_jwt
-def join_watchlist(username):
-    result = watchlists.add_user(username, request.json["watchlist_id"])
+def join_watchlist():
+    result = watchlists.add_user(request.json["username"], request.json["watchlist_id"])
     if result == "watchlist joined":
         return jsonify({"message": result})
     return jsonify({"message": result}), 400
@@ -187,8 +186,10 @@ def watchlist_invite():
 
 @app.route("/createwatchlist", methods=["POST"])
 @check_jwt
-def create_watchlist(username):
-    result = watchlists.create_list(username, request.json["watchlist name"])
+def create_watchlist():
+    result = watchlists.create_list(
+        request.json["username"], request.json["watchlist name"]
+    )
     return jsonify({"watchlist_id": result})
 
 

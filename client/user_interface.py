@@ -311,7 +311,7 @@ class ClientSession:
         print("Your films seen are: ")
         for i in range(len(self.user.films)):
             print(
-                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0])} on {str(self.user.ratings_dates[i][1])}"
+                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0].date())} on {str(self.user.ratings_dates[i][1])}"
             )
 
         input("Press enter to return home")

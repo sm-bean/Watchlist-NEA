@@ -11,7 +11,9 @@ class User:
     def __init__(self, username, token):
         self.url = "http://127.0.0.1:5000/"
         self.token = token
-        self.auth_header = {"Authorization": f"Bearer {token}"}
+        self.auth_header = {
+            "Authorization": f"Bearer {token}"
+        }  # ISSUE HERE! EACH FRIEND USING CLIENTS USERNAME FOR REQUESTS. FIX BY TAKING USERNAME ON ALL REQUESTS
         self.username = username
         self.films = []
         self.ratings_dates = []
@@ -23,11 +25,15 @@ class User:
         self.avg_rating = 0
         self.neighbours = []
         self.neighbours_correlation_coefficients = []
-        # self.set_films()
-        # self.set_avg_rating()
+        self.set_films()
+        self.set_avg_rating()
 
     def get_films(self):
-        response = requests.get(self.url + "getfilms", headers=self.auth_header)
+        username_info = {"username": self.username}
+
+        response = requests.post(
+            self.url + "getfilms", json=username_info, headers=self.auth_header
+        )
 
         if response.status_code == 401:
             token_handling.expired_token()
@@ -51,7 +57,12 @@ class User:
                     db_film[5],
                 )
             )
-            ratings_dates.append([db_film[6], db_film[7]])
+            ratings_dates.append(
+                [
+                    db_film[6],
+                    datetime.datetime.strptime(db_film[7], "%a, %d %b %Y %H:%M:%S %Z"),
+                ]
+            )
         self.films = films
         self.ratings_dates = ratings_dates
 
@@ -86,7 +97,7 @@ class User:
 
         recents = []
         for i in range(iterations):
-            most_recent_date = datetime.date(0, 0, 0)
+            most_recent_date = datetime.datetime(1800, 1, 1)
             most_recent_film = None
             for film in films_dupe:
                 if self.get_date(film) > most_recent_date:
@@ -154,7 +165,11 @@ class User:
         return self.ratings_dates[index][1]
 
     def get_watchlists_in(self):
-        response = requests.get(self.url + "getwatchlistsin", headers=self.auth_header)
+        username_info = {"username": self.username}
+
+        response = requests.post(
+            self.url + "getwatchlistsin", json=username_info, headers=self.auth_header
+        )
 
         if response.status_code == 401:
             token_handling.expired_token()
@@ -180,7 +195,11 @@ class User:
         self.watchlist_invites = watchlist_invites
 
     def get_friends(self):
-        response = requests.get(self.url + "getfriends", headers=self.auth_header)
+        username_info = {"username": self.username}
+
+        response = requests.post(
+            self.url + "getfriends", json=username_info, headers=self.auth_header
+        )
 
         if response.status_code == 401:
             token_handling.expired_token()
@@ -205,8 +224,10 @@ class User:
             self.friend_statuses = friend_statuses
 
     def get_friend_requests(self):
-        response = requests.get(
-            self.url + "getfriendrequests", headers=self.auth_header
+        username_info = {"username": self.username}
+
+        response = requests.post(
+            self.url + "getfriendrequests", json=username_info, headers=self.auth_header
         )
 
         if response.status_code == 401:
@@ -230,11 +251,16 @@ class User:
             self.friend_requests = friend_requests
 
     def set_avg_rating(self):
-        ratings_sum = 0
-        for rating in self.ratings_dates:
-            ratings_sum += rating[0]
+        if len(self.ratings_dates) == 0:
+            self.avg_rating = 0
+        else:
+            ratings_sum = 0
+            for rating in self.ratings_dates:
+                ratings_sum += rating[0]
 
-        self.avg_rating = ratings_sum / len(self.ratings_dates)
+            self.avg_rating = ratings_sum / len(self.ratings_dates)
+
+        print(self.avg_rating)
 
 
 class ClientUser(User):
@@ -242,14 +268,15 @@ class ClientUser(User):
         User.__init__(self, username, token)
         self.set_friends()
         self.set_friend_requests()
-        self.set_films()
-        print(self.films)
-        print(self.ratings_dates)
         # self.set_watchlists_in()
         # self.set_neighbours()
 
     def log_film(self, film, rating):
-        rating_info = {"film_id": film.film_id, "rating": rating}
+        rating_info = {
+            "username": self.username,
+            "film_id": film.film_id,
+            "rating": rating,
+        }
 
         response = requests.post(
             self.url + "logfilm", json=rating_info, headers=self.auth_header
@@ -261,7 +288,9 @@ class ClientUser(User):
             return response.json()["message"]
 
         self.films.append(film)
-        self.ratings_dates.append([rating, datetime.date.today()])
+        self.ratings_dates.append(
+            [rating, datetime.datetime.now(datetime.timezone.utc)]
+        )
 
         return "film logged"
 
@@ -296,6 +325,7 @@ class ClientUser(User):
         cc = recommendation.correlation_coefficient(self, friend)
 
         users_info = {
+            "username": self.username,
             "friend_username": friend.username,
             "correlation coefficient": cc,
         }
@@ -317,7 +347,10 @@ class ClientUser(User):
         return "friend added"
 
     def accept_friend(self, friend):
-        users_info = {"friend_username": friend.username}
+        users_info = {
+            "username": self.username,
+            "friend_username": friend.username,
+        }
 
         response = requests.post(
             self.url + "acceptfriend", json=users_info, headers=self.auth_header
@@ -344,6 +377,7 @@ class ClientUser(User):
     # When will this be used
     def update_correlation_coefficient(self, friend, corr_coeff):
         users_info = {
+            "username": self.username,
             "friend_username": friend.username,
             "correlation_coefficient": corr_coeff,
         }
@@ -363,7 +397,7 @@ class ClientUser(User):
 
     # UPDATE WATCHLIST LIST IN OBJECT AFTER CREATING
     def create_watchlist(self, watchlist_name):
-        watchlist_info = {"watchlist name": watchlist_name}
+        watchlist_info = {"username": self.username, "watchlist name": watchlist_name}
 
         response = requests.post(
             self.url + "createwatchlist", json=watchlist_info, headers=self.auth_header
@@ -379,7 +413,10 @@ class ClientUser(User):
         return watchlist_class.Watchlist(watchlist_id, watchlist_name, self.token)
 
     def join_watchlist(self, watchlist):
-        watchlist_info = {"watchlist_id": watchlist.watchlist_id}
+        watchlist_info = {
+            "username": self.username,
+            "watchlist_id": watchlist.watchlist_id,
+        }
 
         response = requests.post(
             self.url + "joinwatchlist", json=watchlist_info, headers=self.auth_header

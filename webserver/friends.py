@@ -3,7 +3,7 @@ import dotenv
 import os
 
 
-def request_friend(username1, data):
+def request_friend(data):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
     mydb = mysql.connector.connect(
@@ -13,6 +13,7 @@ def request_friend(username1, data):
         database="watchlists",
     )
 
+    username1 = data["username"]
     username2 = data["friend_username"]
     cor_coeff = data["correlation coefficient"]
     friendship_status = "Request"
@@ -145,7 +146,7 @@ def get_friendship_requests(username):
     return myresult
 
 
-def update_coefficient(username, data):
+def update_coefficient(data):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
     mydb = mysql.connector.connect(
@@ -155,6 +156,7 @@ def update_coefficient(username, data):
         database="watchlists",
     )
 
+    username = data["username"]
     friend_username = data["friend_username"]
     correlation_coefficient = data["correlation_coefficient"]
 
