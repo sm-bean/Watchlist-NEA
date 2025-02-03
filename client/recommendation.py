@@ -21,7 +21,10 @@ def correlation_coefficient(x, y):
     x_sigma = sqrt(x_sigma)
     y_sigma = sqrt(y_sigma)
 
-    return co_total / (x_sigma * y_sigma)
+    if (x_sigma * y_sigma) == 0:
+        return 0
+
+    return round(co_total / (x_sigma * y_sigma), 2)
 
 
 def predict_value(user, film, friends, friend_correlation_coefficients):

@@ -11,9 +11,7 @@ class User:
     def __init__(self, username, token):
         self.url = "http://127.0.0.1:5000/"
         self.token = token
-        self.auth_header = {
-            "Authorization": f"Bearer {token}"
-        }  # ISSUE HERE! EACH FRIEND USING CLIENTS USERNAME FOR REQUESTS. FIX BY TAKING USERNAME ON ALL REQUESTS
+        self.auth_header = {"Authorization": f"Bearer {token}"}
         self.username = username
         self.films = []
         self.ratings_dates = []
@@ -69,18 +67,18 @@ class User:
     def get_common_films(self, friend):
         self_films_list = []
         for film in self.films:
-            self_films_list.append(film[0])
+            self_films_list.append(film.film_id)
 
         friend_films_list = []
         for film in friend.films:
-            friend_films_list.append(film[0])
+            friend_films_list.append(film.film_id)
 
         common_ids = list(set(self_films_list).intersection(friend_films_list))
 
         common_films = []
         for id in common_ids:
             for film in self.films:
-                if id == film[0]:
+                if id == film.film_id:
                     common_films.append(film)
 
         return common_films
@@ -260,15 +258,13 @@ class User:
 
             self.avg_rating = ratings_sum / len(self.ratings_dates)
 
-        print(self.avg_rating)
-
 
 class ClientUser(User):
     def __init__(self, username, token):
         User.__init__(self, username, token)
         self.set_friends()
         self.set_friend_requests()
-        # self.set_watchlists_in()
+        self.set_watchlists_in()
         # self.set_neighbours()
 
     def log_film(self, film, rating):
@@ -291,6 +287,11 @@ class ClientUser(User):
         self.ratings_dates.append(
             [rating, datetime.datetime.now(datetime.timezone.utc)]
         )
+
+        for friend in self.friends:
+            self.update_correlation_coefficient(
+                friend, recommendation.correlation_coefficient(self, friend)
+            )
 
         return "film logged"
 
@@ -395,7 +396,6 @@ class ClientUser(User):
 
         return response.json()["message"]
 
-    # UPDATE WATCHLIST LIST IN OBJECT AFTER CREATING
     def create_watchlist(self, watchlist_name):
         watchlist_info = {"username": self.username, "watchlist name": watchlist_name}
 
@@ -409,6 +409,11 @@ class ClientUser(User):
             token_handling.server_side_error()
 
         watchlist_id = response.json()["watchlist_id"]
+
+        self.watchlists.append(
+            watchlist_class.Watchlist(watchlist_id, watchlist_name, self.token)
+        )
+        self.watchlist_invites.append(False)
 
         return watchlist_class.Watchlist(watchlist_id, watchlist_name, self.token)
 
@@ -427,15 +432,16 @@ class ClientUser(User):
         if response.status_code == 500:
             token_handling.server_side_error()
 
+        for i in range(len(self.watchlists)):
+            if self.watchlists[i].watchlist_id == watchlist.watchlist_id:
+                self.watchlist_invites[i] = False
+
         return response.json()["message"]
 
     def invite_user_to_watchlist(self, invited_user, watchlist):
-        if self.get_watchlist_invites(watchlist):
-            return "you are only invited to the watchlist"
-
         watchlist_info = {
             "watchlist_id": watchlist.watchlist_id,
-            "invited_username": invited_user.username,
+            "invited_username": invited_user,
         }
 
         response = requests.post(

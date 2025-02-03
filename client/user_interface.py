@@ -90,7 +90,7 @@ class ClientSession:
         3 to add a friend \n
         4 to see your notifications \n
         5 to log a film \n
-        6 to see your 5 most recently watched films"""
+        6 to see your 5 most recently watched films: """
         )
         options = ["1", "2", "3", "4", "5", "6"]
         while user_answer not in options:
@@ -148,7 +148,7 @@ class ClientSession:
             user_answer = input(
                 "Which watchlist would you like to view or edit? Enter the number that it was displayed with: "
             )
-            options = range(1, j)
+            options = list(range(1, j))
             for i in range(len(options)):
                 options[i] = str(options[i])
             while user_answer not in options:
@@ -166,7 +166,7 @@ class ClientSession:
         for film in watchlist.films:
             print(film.title)
 
-        user_answer = input(
+        print(
             """What would you like to do? \n
         Enter 1 to add a film to the watchlist \n
         Enter 2 to invite a user to the watchlist \n
@@ -175,10 +175,15 @@ class ClientSession:
         Enter 5 to choose a different watchlist \n
         Enter 6 to go back to homepage"""
         )
+        user_answer = ""
 
         options = ["1", "2", "3", "4", "5", "6"]
         while user_answer not in options:
             user_answer = input("Please enter one of the options: ")
+            if len(watchlist.films) == 0:
+                if user_answer == "3" or user_answer == "4":
+                    print("Your watchlist is empty")
+                    user_answer = ""
 
         if user_answer == "1":
             self.add_watchlist_film(watchlist)
@@ -382,7 +387,7 @@ class ClientSession:
         user_answer = input(
             "Which watchlist would you like to join? Enter the number that it was displayed with or enter nothing to return to the homepage: "
         )
-        options = range(1, j)
+        options = list(range(1, j))
         for i in range(len(options)):
             options[i] = str(options[i])
         while user_answer not in options:
@@ -446,7 +451,9 @@ class ClientSession:
                 print("Name is too long")
             user_answer = input("What would you like to name your watchlist? ")
 
-        new_watchlist = self.user.create_watchlist()
+        new_watchlist = self.user.create_watchlist(user_answer)
+        print(self.user.watchlists)
+        print(self.user.watchlist_invites)
 
         user_answer = ""
         options = ["1", "2", "3"]

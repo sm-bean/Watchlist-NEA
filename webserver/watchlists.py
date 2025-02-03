@@ -230,7 +230,7 @@ def create_list(username, watchlist_name):
 
     mycursor = mydb.cursor()
     watchlist_query = "INSERT INTO watchlists (Name) VALUES (%s)"
-    val = watchlist_name
+    val = (watchlist_name,)
     mycursor.execute(watchlist_query, val)
     mydb.commit()
 
