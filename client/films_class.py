@@ -1,5 +1,6 @@
 import datetime
 
+# Films class for easy storing, manipulation and access of films
 
 class Film:
     def __init__(self, film_id, title, avg_rating, release_date, runtime, genre=""):

@@ -115,6 +115,7 @@ class ClientSession:
             self.homepage()
 
     def watchlist_home(self):
+        # Selects watchlists that user is in (not invited) and stores indexes of those watchlists so user can select one
         print("Your available watchlists:")
         watchlist_options = []
         indexes = []
@@ -154,6 +155,8 @@ class ClientSession:
             while user_answer not in options:
                 user_answer = input("Please enter one of the options")
 
+            
+            # Selects the watchlist via the stored indexes
             user_choice = watchlist_options[indexes[int(user_answer) - 1]]
             self.view_watchlist(user_choice)
         if user_answer == "2":
@@ -205,6 +208,7 @@ class ClientSession:
         user_answer = ""
         options = []
         film = None
+        # Searches for film
         while film_found == False:
             while film_search == "":
                 film_search = input(
@@ -255,6 +259,7 @@ class ClientSession:
         user_answer = ""
         options = []
         film = None
+        # Searches for film
         while film_found == False:
             while film_search == "":
                 film_search = input(
@@ -316,7 +321,7 @@ class ClientSession:
         print("Your films seen are: ")
         for i in range(len(self.user.films)):
             print(
-                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0].date())} on {str(self.user.ratings_dates[i][1])}"
+                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][1])} on {str(self.user.ratings_dates[i][0].date())}"
             )
 
         input("Press enter to return home")
@@ -368,6 +373,7 @@ class ClientSession:
             self.friendship_notifications()
 
     def watchlist_notifications(self):
+        # Selects watchlists that user is invited to (not in) and stores indexes of those watchlists so user can select one
         print("Your watchlist invites:")
         watchlist_options = []
         indexes = []
@@ -395,6 +401,7 @@ class ClientSession:
                 self.homepage()
             user_answer = input("Please enter one of the options")
 
+        # Selects the watchlist via the stored indexes
         user_choice = watchlist_options[indexes[int(user_answer) - 1]]
         self.user.join_watchlist(user_choice)
         print("Watchlist joined")
@@ -431,6 +438,7 @@ class ClientSession:
         while user_chosen == False:
             user_to_invite = input("Who would you like to invite? ")
             username_available = token_handling.check_username_available(user_to_invite)
+            # Checks the user exists
             if username_available == False:
                 user_chosen = True
             else:
