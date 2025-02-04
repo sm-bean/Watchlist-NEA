@@ -46,7 +46,7 @@ def predict_value(user, film, friends, friend_correlation_coefficients):
 
 
 def recommend_film(user, watchlist):
-    neighbours = user.neighbours
+    neighbours = user.neighbours[:]
     neighbours_correlation_coefficients = user.neighbours_correlation_coefficients
     best_film = None
     best_predicted = 0

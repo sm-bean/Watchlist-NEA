@@ -59,7 +59,7 @@ def get_members(watchlist_id):
 
     mycursor = mydb.cursor()
     watchlist_query = (
-        "SELECT Username, Permissions FROM watchlists WHERE WatchlistID = %s"
+        "SELECT Username, Invite FROM watchlistmembers WHERE WatchlistID = %s"
     )
     val = (watchlist_id,)
     mycursor.execute(watchlist_query, val)

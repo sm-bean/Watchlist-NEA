@@ -191,9 +191,10 @@ class ClientSession:
             self.watchlist_invite(watchlist)
         if user_answer == "3":
             print(f"Try {recommendation.recommend_film(self.user, watchlist).title}")
-            self.view_watchlist(watchlist)
+            self.homepage()
         if user_answer == "4":
             print(f"Try {watchlist.get_random_film().title}")
+            self.homepage()
         if user_answer == "5":
             self.watchlist_home()
         if user_answer == "6":
