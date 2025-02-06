@@ -244,17 +244,6 @@ class ClientSession:
                         film_found = True
                         film = result[int(user_answer) - 1]
 
-        for neighbour in self.user.neighbours:
-            print(neighbour.username)
-        print(self.user.neighbours_correlation_coefficients)
-        print(
-            recommendation.predict_value(
-                self.user,
-                film,
-                self.user.neighbours,
-                self.user.neighbours_correlation_coefficients,
-            )
-        )
         added = watchlist.add_film(self.user, film)
 
         if added == "film added":
@@ -332,7 +321,7 @@ class ClientSession:
         print("Your films seen are: ")
         for i in range(len(self.user.films)):
             print(
-                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][1])} on {str(self.user.ratings_dates[i][0].date())}"
+                f"{self.user.films[i].title}, you rated {str(self.user.ratings_dates[i][0])} on {str(self.user.ratings_dates[i][1].date())}"
             )
 
         input("Press enter to return home")

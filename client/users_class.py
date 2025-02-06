@@ -375,7 +375,6 @@ class ClientUser(User):
 
         return "friend added"
 
-    # When will this be used
     def update_correlation_coefficient(self, friend, corr_coeff):
         users_info = {
             "username": self.username,
@@ -453,47 +452,38 @@ class ClientUser(User):
 
         return response.json()["message"]
 
-    def get_neighbours(self, num_neighbours, threshold):
-        friend_correlation_coefficients = []
+    def get_neighbours(self, max_neighbours, threshold):
         neighbours_correlation_coefficients = []
-
-        for status in self.friend_statuses:
-            friend_correlation_coefficients.append(float(status[1]))
-
         neighbours = []
-        for i in range(len(self.friends)):
-            if friend_correlation_coefficients[i] >= threshold:
-                neighbours.append(self.friends[i])
-                neighbours_correlation_coefficients.append(
-                    friend_correlation_coefficients[i]
-                )
-                if len(neighbours) >= num_neighbours:
-                    return neighbours
 
-        temp_friends = self.friends[:]
+        queue = []
+        visited = []
 
-        while len(neighbours) < num_neighbours and len(temp_friends) > 0:
-            max_friend_index = friend_correlation_coefficients.index(
-                max(friend_correlation_coefficients)
-            )
-            max_friend = temp_friends[max_friend_index]
-            del temp_friends[max_friend_index]
-            del friend_correlation_coefficients[max_friend_index]
+        queue.append(self)
+        visited.append(self)
 
-            max_friend.set_friends()
+        while queue != [] and len(neighbours) < max_neighbours:
+            current_user = queue[0]
+            queue = queue[1:]
 
-            for friend in max_friend.friends:
-                correlation_coefficient = recommendation.correlation_coefficient(
-                    self, friend
-                )
-                if (
-                    correlation_coefficient >= threshold
-                    and friend.username != self.username
-                ):
-                    neighbours.append(friend)
-                    neighbours_correlation_coefficients.append(correlation_coefficient)
-                    if len(neighbours) >= num_neighbours:
-                        return neighbours, neighbours_correlation_coefficients
+            current_user.set_friends()
+            for user in current_user.friends:
+                in_visited = False
+                for visited_user in visited:
+                    if visited_user.username == user.username:
+                        in_visited = True
+
+                if in_visited == False and len(neighbours) < max_neighbours:
+                    queue.append(user)
+                    visited.append(user)
+                    correlation_coefficient = recommendation.correlation_coefficient(
+                        self, user
+                    )
+                    if correlation_coefficient >= threshold:
+                        neighbours.append(user)
+                        neighbours_correlation_coefficients.append(
+                            correlation_coefficient
+                        )
 
         return neighbours, neighbours_correlation_coefficients
 
