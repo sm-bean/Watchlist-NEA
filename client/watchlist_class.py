@@ -55,7 +55,8 @@ class Watchlist:
         if response.status_code == 401:
             token_handling.expire_token()
 
-        self.films.append(film)
+        if response.status_code == 200:
+            self.films.append(film)
 
         return response.json()["message"]
 

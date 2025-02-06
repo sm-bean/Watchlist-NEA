@@ -265,7 +265,7 @@ class ClientUser(User):
         self.set_friends()
         self.set_friend_requests()
         self.set_watchlists_in()
-        # self.set_neighbours()
+        self.set_neighbours(10, 0)
 
     def log_film(self, film, rating):
         rating_info = {
@@ -458,7 +458,7 @@ class ClientUser(User):
         neighbours_correlation_coefficients = []
 
         for status in self.friend_statuses:
-            friend_correlation_coefficients.append(status[1])
+            friend_correlation_coefficients.append(float(status[1]))
 
         neighbours = []
         for i in range(len(self.friends)):
@@ -472,7 +472,7 @@ class ClientUser(User):
 
         temp_friends = self.friends[:]
 
-        while len(neighbours) < num_neighbours:
+        while len(neighbours) < num_neighbours and len(temp_friends) > 0:
             max_friend_index = friend_correlation_coefficients.index(
                 max(friend_correlation_coefficients)
             )
@@ -486,11 +486,14 @@ class ClientUser(User):
                 correlation_coefficient = recommendation.correlation_coefficient(
                     self, friend
                 )
-                if correlation_coefficient >= threshold:
+                if (
+                    correlation_coefficient >= threshold
+                    and friend.username != self.username
+                ):
                     neighbours.append(friend)
                     neighbours_correlation_coefficients.append(correlation_coefficient)
                     if len(neighbours) >= num_neighbours:
-                        return neighbours
+                        return neighbours, neighbours_correlation_coefficients
 
         return neighbours, neighbours_correlation_coefficients
 

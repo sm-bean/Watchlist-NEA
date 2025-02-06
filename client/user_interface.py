@@ -155,7 +155,6 @@ class ClientSession:
             while user_answer not in options:
                 user_answer = input("Please enter one of the options")
 
-            
             # Selects the watchlist via the stored indexes
             user_choice = watchlist_options[indexes[int(user_answer) - 1]]
             self.view_watchlist(user_choice)
@@ -213,7 +212,7 @@ class ClientSession:
         while film_found == False:
             while film_search == "":
                 film_search = input(
-                    "Enter the title of the film you would like to log: "
+                    "Enter the title of the film you would like to add to your watchlist: "
                 )
                 if film_search == "":
                     print("Please enter a film")
@@ -245,6 +244,17 @@ class ClientSession:
                         film_found = True
                         film = result[int(user_answer) - 1]
 
+        for neighbour in self.user.neighbours:
+            print(neighbour.username)
+        print(self.user.neighbours_correlation_coefficients)
+        print(
+            recommendation.predict_value(
+                self.user,
+                film,
+                self.user.neighbours,
+                self.user.neighbours_correlation_coefficients,
+            )
+        )
         added = watchlist.add_film(self.user, film)
 
         if added == "film added":
@@ -461,13 +471,11 @@ class ClientSession:
             user_answer = input("What would you like to name your watchlist? ")
 
         new_watchlist = self.user.create_watchlist(user_answer)
-        print(self.user.watchlists)
-        print(self.user.watchlist_invites)
 
         user_answer = ""
         options = ["1", "2", "3"]
         while user_answer not in options:
-            input(
+            user_answer = input(
                 "Enter 1 to return to the main homepage, 2 to return to the watchlist homepage, or 3 to view the new watchlist"
             )
 
