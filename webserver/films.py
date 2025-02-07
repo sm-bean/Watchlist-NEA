@@ -3,6 +3,8 @@ import dotenv
 import os
 import datetime
 
+# Does a join query between films and userwatched ratings to get films watched by a user
+
 
 def get_films_watched(username):
     dotenv.load_dotenv()
@@ -24,6 +26,9 @@ def get_films_watched(username):
     mydb.close()
 
     return myresult
+
+
+# Checks that the user hasn't logged the film before, and then inserts record into userwatchedrating with current date if not
 
 
 def log_film_watched(data):
@@ -63,6 +68,9 @@ def log_film_watched(data):
     mydb.close()
 
     return False
+
+
+# Queries for the film by title and returns all results
 
 
 def find_film(film_title):

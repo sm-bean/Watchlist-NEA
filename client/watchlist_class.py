@@ -14,6 +14,8 @@ class Watchlist:
         self.films = []
         self.set_films()
 
+    # Sends request to server to retrieve films in watchlist in the db format
+
     def get_films(self):
         id_info = {"watchlist_id": self.watchlist_id}
 
@@ -25,6 +27,8 @@ class Watchlist:
             token_handling.expire_token()
 
         return response.json()["films"]
+
+    # Creates objects for the films returned by get_films and stores them locally
 
     def set_films(self):
         db_films = self.get_films()
@@ -41,6 +45,8 @@ class Watchlist:
                 )
             )
         self.films = films
+
+    # Sends request to server to add film to watchlist, and adds it locally if successful
 
     def add_film(self, user, film):
         if user.get_watchlist_invites(self):
@@ -60,24 +66,7 @@ class Watchlist:
 
         return response.json()["message"]
 
-    def remove_film(self, user, film):  # REMOVE THIS MAYBE?
-        if user.get_watchlist_invites(self):
-            return "user only invited to watchlist"
-
-        id_info = {"watchlist_id": self.watchlist_id, "film_id": film.film_id}
-
-        response = requests.post(
-            self.url + "removewatchlistfilm", json=id_info, headers=self.auth_header
-        )
-
-        if response.status_code == 401:
-            token_handling.expire_token()
-
-        for self_film in self.films:
-            if self_film.film_id == film.film_id:
-                self.films.remove(self_film)
-
-        return response.json()["message"]
+    # Returns members of the watchlist in db format
 
     def get_members(self):
         id_info = {"watchlist_id": self.watchlist_id}
@@ -90,6 +79,8 @@ class Watchlist:
             token_handling.expire_token()
 
         return response.json()["members"]
+
+    # Picks a random film from the watchlist
 
     def get_random_film(self):
         return random.choice(self.films)

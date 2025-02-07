@@ -5,6 +5,8 @@ import datetime
 import dotenv
 import os
 
+# Retrieves the hashed password from the database for the username and checks it against the password submitted. If details are correct it returns a JWT
+
 
 def login(data):
     dotenv.load_dotenv()
@@ -39,6 +41,9 @@ def login(data):
     return ""
 
 
+# Encodes the username in a JWT and returns it
+
+
 def create_jwt_token(username):
     dotenv.load_dotenv()
     jwt_secret = os.getenv("jwt_secret")
@@ -55,6 +60,9 @@ def create_jwt_token(username):
     )
 
     return token
+
+
+# Checks if the username is in the database, and returns True if not
 
 
 def check_username_availability(username):
@@ -79,6 +87,9 @@ def check_username_availability(username):
     if myresult is None:
         return True
     return False
+
+
+# Salts and hashes the given password and inserts the user into users table, then returns a JWT
 
 
 def create_account(data):

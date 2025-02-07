@@ -2,6 +2,8 @@ import mysql.connector
 import dotenv
 import os
 
+# Checks if there is already a friendship or request between the two users and if not, inserts a friendship into the DB
+
 
 def request_friend(data):
     dotenv.load_dotenv()
@@ -23,6 +25,7 @@ def request_friend(data):
         "SELECT Status FROM friendships WHERE Username1 = %s AND Username2 = %s"
     )
 
+    # Checks with each username first
     val = (username1, username2)
     mycursor.execute(friendship_query, val)
     myresult1 = mycursor.fetchone()
@@ -45,6 +48,9 @@ def request_friend(data):
     mydb.close()
 
     return False
+
+
+# First checks if the other user has send the user a friend request that hasn't been accepted, and then changes the status to accepted if not
 
 
 def accept_friendship(username1, username2):
@@ -91,6 +97,9 @@ def accept_friendship(username1, username2):
     return "friend added"
 
 
+# Gets the friendships with each username first, then concatenates them and returns the result
+
+
 def get_friendships(username):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
@@ -122,6 +131,9 @@ def get_friendships(username):
     return myresult
 
 
+# Gets all the friendship requests to the user
+
+
 def get_friendship_requests(username):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
@@ -144,6 +156,9 @@ def get_friendship_requests(username):
     mydb.close()
 
     return myresult
+
+
+# First checks which order the usernames are in and if they are friendships, then updates the friendship's correlation coefficient with the usernames in the order found
 
 
 def update_coefficient(data):

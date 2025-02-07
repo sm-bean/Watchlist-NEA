@@ -12,6 +12,8 @@ import os
 
 app = Flask(__name__)
 
+# Decorator for other functions to check that the JWT is valid and not expired before allowing access to functions
+
 
 def check_jwt(func):
     @wraps(func)
@@ -38,6 +40,9 @@ def check_jwt(func):
         return func(*args, **kwargs)
 
     return decorated_func
+
+
+# Functions below route calls to the server to different functions stored and return the results and the outcome
 
 
 @app.route("/login", methods=["POST"])
@@ -199,7 +204,3 @@ def search_film():
     data = request.json
     result = films.find_film(data["film_title"])
     return jsonify({"films": result})
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

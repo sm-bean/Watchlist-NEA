@@ -2,6 +2,8 @@ import mysql.connector
 import dotenv
 import os
 
+# Joins the films and watchlistfilms tables to get the details about the films in the watchlist with watchlist_id given
+
 
 def get_films_in_watchlist(watchlist_id):
     dotenv.load_dotenv()
@@ -23,6 +25,9 @@ def get_films_in_watchlist(watchlist_id):
     mydb.close()
 
     return myresult
+
+
+# Joins watchlists and watchlistmembers to get the names of the watchlists the user is in
 
 
 def get_watchlists_user_in(username):
@@ -47,6 +52,9 @@ def get_watchlists_user_in(username):
     return myresult
 
 
+# Selects members by watchlistID
+
+
 def get_members(watchlist_id):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
@@ -69,6 +77,9 @@ def get_members(watchlist_id):
     mydb.close()
 
     return myresult
+
+
+# Checks if film is already in watchlist, and if not, inserts record of film into watchlistfilms
 
 
 def add_film(watchlist_id, film_id):
@@ -107,39 +118,7 @@ def add_film(watchlist_id, film_id):
     return False
 
 
-def remove_film(watchlist_id, film_id):
-    dotenv.load_dotenv()
-    db_password = os.getenv("db_password")
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="serverconnection",
-        password=db_password,
-        database="watchlists",
-    )
-
-    mycursor = mydb.cursor()
-    watchlist_query = (
-        "SELECT WatchlistID FROM watchlistfilms WHERE WatchlistID = %s AND FilmID = %s"
-    )
-    val = (watchlist_id, film_id)
-    mycursor.execute(watchlist_query, val)
-    myresult = mycursor.fetchone()
-
-    if myresult is None:
-        mycursor.close()
-        mydb.close()
-        return False
-
-    watchlist_query = (
-        "DELETE FROM watchlistfilms WHERE WatchlistID = %s AND FilmID = %s"
-    )
-    mycursor.execute(watchlist_query, val)
-    mydb.commit()
-
-    mycursor.close()
-    mydb.close()
-
-    return True
+# Checks if user is invited to watchlist, and if so, updates invite status to false
 
 
 def add_user(username, watchlist_id):
@@ -181,6 +160,9 @@ def add_user(username, watchlist_id):
     return "watchlist joined"
 
 
+# Checks if the user is not yet invited to or in the watchlist, and then inserts the user into watchlistmembers
+
+
 def invite_user(data):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
@@ -218,6 +200,9 @@ def invite_user(data):
     return "user already invited/in watchlist"
 
 
+# Creates watchlist in watchlists table, then gets id of watchlist created, and inserts user who created watchlist into watchlistmembers
+
+
 def create_list(username, watchlist_name):
     dotenv.load_dotenv()
     db_password = os.getenv("db_password")
@@ -234,7 +219,6 @@ def create_list(username, watchlist_name):
     mycursor.execute(watchlist_query, val)
     mydb.commit()
 
-    # NOT SURE ABOUT THIS ONE
     watchlist_id = mycursor.lastrowid
 
     watchlist_query = "INSERT INTO watchlistmembers (WatchlistID, Username, Invite) VALUES (%s, %s, %s)"

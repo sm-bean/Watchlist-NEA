@@ -283,6 +283,7 @@ class User:
 
 # Object used for the client user which inherits from the general user
 
+
 class ClientUser(User):
     def __init__(self, username, token):
         User.__init__(self, username, token)
@@ -347,6 +348,8 @@ class ClientUser(User):
             )
         return films_objects
 
+    # Sends request to server to add user as a friend and adds friend locally if successful
+
     def add_friend(self, friend):
         if token_handling.check_username_available(friend.username):
             return "user does not exist"
@@ -374,6 +377,8 @@ class ClientUser(User):
         self.friends.append(friend)
         self.friend_statuses.append(["Request", cc])
         return "friend added"
+
+    # Sends request to the server to accept friendship and updates locally if successful
 
     def accept_friend(self, friend):
         users_info = {
@@ -403,6 +408,8 @@ class ClientUser(User):
 
         return "friend added"
 
+    # Sends request to the server to update the correlation coefficient
+
     def update_correlation_coefficient(self, friend, corr_coeff):
         users_info = {
             "username": self.username,
@@ -422,6 +429,8 @@ class ClientUser(User):
             token_handling.server_side_error()
 
         return response.json()["message"]
+
+    # Sends request to the server to create a new watchlist, and creates and stores object locally if successful
 
     def create_watchlist(self, watchlist_name):
         watchlist_info = {"username": self.username, "watchlist name": watchlist_name}
@@ -444,6 +453,8 @@ class ClientUser(User):
 
         return watchlist_class.Watchlist(watchlist_id, watchlist_name, self.token)
 
+    # Sends request to server to join watchlist and updates status locally if successful
+
     def join_watchlist(self, watchlist):
         watchlist_info = {
             "username": self.username,
@@ -465,6 +476,8 @@ class ClientUser(User):
 
         return response.json()["message"]
 
+    # Sends request to server to invite user to watchlist
+
     def invite_user_to_watchlist(self, invited_user, watchlist):
         watchlist_info = {
             "watchlist_id": watchlist.watchlist_id,
@@ -479,6 +492,8 @@ class ClientUser(User):
             token_handling.expired_token()
 
         return response.json()["message"]
+
+    # Conducts a breadth first search on the friendship network to find users with a correlation coefficient with the client higher than the threshold
 
     def get_neighbours(self, max_neighbours, threshold):
         neighbours_correlation_coefficients = []
@@ -514,6 +529,8 @@ class ClientUser(User):
                         )
 
         return neighbours, neighbours_correlation_coefficients
+
+    # Sets the result of get_neighbours in the user object
 
     def set_neighbours(self, num_neighbours, threshold):
         neighbours, neighbours_correlation_coefficients = self.get_neighbours(

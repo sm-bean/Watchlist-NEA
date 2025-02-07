@@ -2,6 +2,7 @@ from math import sqrt
 
 # Calculates Pearson correlation coefficient between two users
 
+
 def correlation_coefficient(x, y):
 
     common_films = x.get_common_films(y)
@@ -27,7 +28,9 @@ def correlation_coefficient(x, y):
 
     return round(co_total / (x_sigma * y_sigma), 2)
 
+
 # Uses formula to predict value for film by user based on their neighbours' ratings
+
 
 def predict_value(user, film, friends, friend_correlation_coefficients):
     raters_diff = 0
@@ -46,7 +49,9 @@ def predict_value(user, film, friends, friend_correlation_coefficients):
 
     return user.avg_rating + raters_diff / raters_correlation
 
+
 # Predicts value for each film for user, and then returns the film with the highest value predicted
+
 
 def recommend_film(user, watchlist):
     neighbours = user.neighbours[:]
