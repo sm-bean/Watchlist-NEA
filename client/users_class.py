@@ -26,6 +26,8 @@ class User:
         self.set_films()
         self.set_avg_rating()
 
+    # Gets films seen by the user in their db format
+
     def get_films(self):
         username_info = {"username": self.username}
 
@@ -39,6 +41,8 @@ class User:
             token_handling.server_side_error()
 
         return response.json()["films"]
+
+    # Puts films into object format and stores in user object
 
     def set_films(self):
         db_films = self.get_films()
@@ -64,6 +68,8 @@ class User:
         self.films = films
         self.ratings_dates = ratings_dates
 
+    # Gets common films between users by getting lists of ids of films seen by each user and finding their intersection
+
     def get_common_films(self, friend):
         self_films_list = []
         for film in self.films:
@@ -82,6 +88,8 @@ class User:
                     common_films.append(film)
 
         return common_films
+
+    # Conducts a linear search for the most recent film 5 times
 
     def get_recently_watched_films(self):
         films_dupe = self.films[:]
@@ -162,6 +170,8 @@ class User:
 
         return self.ratings_dates[index][1]
 
+    # Gets watchlists the user is in in db format
+
     def get_watchlists_in(self):
         username_info = {"username": self.username}
 
@@ -175,6 +185,8 @@ class User:
             token_handling.server_side_error()
 
         return response.json()["watchlists"]
+
+    # Creates objects for watchlists user in and stores them locally in the user
 
     def set_watchlists_in(self):
         db_watchlists = self.get_watchlists_in()
@@ -192,6 +204,8 @@ class User:
         self.watchlists = watchlists
         self.watchlist_invites = watchlist_invites
 
+    # Gets friends of the user in their db format
+
     def get_friends(self):
         username_info = {"username": self.username}
 
@@ -205,6 +219,8 @@ class User:
             token_handling.server_side_error()
 
         return response.json()["friendships"]
+
+    # Creates objects for users friends and stores them locally
 
     def set_friends(self):
         db_friends = self.get_friends()
@@ -221,6 +237,8 @@ class User:
             self.friends = friends
             self.friend_statuses = friend_statuses
 
+    # Gets usernames of users who have sent friend requests to the client user, used separately to get_friends as get_friends does not say who sent the request
+
     def get_friend_requests(self):
         username_info = {"username": self.username}
 
@@ -235,6 +253,8 @@ class User:
 
         return response.json()["friend requests"]
 
+    # Sets usernames of friend requests in user object from db format
+
     def set_friend_requests(self):
         db_friend_requests = self.get_friend_requests()
 
@@ -248,6 +268,8 @@ class User:
 
             self.friend_requests = friend_requests
 
+    # Calculates average rating of users logs and stores it
+
     def set_avg_rating(self):
         if len(self.ratings_dates) == 0:
             self.avg_rating = 0
@@ -259,6 +281,8 @@ class User:
             self.avg_rating = ratings_sum / len(self.ratings_dates)
 
 
+# Object used for the client user which inherits from the general user
+
 class ClientUser(User):
     def __init__(self, username, token):
         User.__init__(self, username, token)
@@ -266,6 +290,8 @@ class ClientUser(User):
         self.set_friend_requests()
         self.set_watchlists_in()
         self.set_neighbours(10, 0)
+
+    # Sends a request to the server to log the film in the db and stores the log locally if successful
 
     def log_film(self, film, rating):
         rating_info = {
@@ -294,6 +320,8 @@ class ClientUser(User):
             )
 
         return "film logged"
+
+    # Searches for all films with the title specified and creates objects for ones returned
 
     def search_film(self, film_title):
         film_info = {"film_title": film_title}
