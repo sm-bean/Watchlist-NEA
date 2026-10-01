@@ -29,7 +29,6 @@ def start_timer():
 
 @app.after_request
 def record_metrics(response):
-    # Uses the route pattern (e.g. "/login"), not the raw URL, to keep labels tidy
     endpoint = request.url_rule.rule if request.url_rule else "unmatched"
     REQUEST_COUNT.labels(request.method, endpoint, response.status_code).inc()
     if hasattr(g, "start_time"):
