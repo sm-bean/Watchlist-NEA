@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g, Response
 import login
 import friends
 import films
@@ -8,9 +8,37 @@ from functools import wraps
 import jwt
 import dotenv
 import os
+import time
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 
 app = Flask(__name__)
+
+
+REQUEST_COUNT = Counter(
+    "http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"]
+)
+REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds", "Request latency in seconds", ["endpoint"]
+)
+LOGIN_FAILURES = Counter("login_failures_total", "Failed login attempts")
+
+@app.before_request
+def start_timer():
+    g.start_time = time.perf_counter()
+
+@app.after_request
+def record_metrics(response):
+    # Uses the route pattern (e.g. "/login"), not the raw URL, to keep labels tidy
+    endpoint = request.url_rule.rule if request.url_rule else "unmatched"
+    REQUEST_COUNT.labels(request.method, endpoint, response.status_code).inc()
+    if hasattr(g, "start_time"):
+        REQUEST_LATENCY.labels(endpoint).observe(time.perf_counter() - g.start_time)
+    return response
+
+@app.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 # Decorator for other functions to check that the JWT is valid and not expired before allowing access to functions
 
@@ -51,6 +79,7 @@ def login_server():
     result = login.login(data)
     if result != "":
         return jsonify({"token": result})
+    LOGIN_FAILURES.inc()
     return jsonify({"message": "Incorrect details"}), 401
 
 
